@@ -3,11 +3,12 @@ package HTML::Robot::Scraper::Reader::BBC;
 #with qw(Jungle::Spider);
 use Moose::Role;
 use Data::Printer;
+use Digest::SHA qw(sha1_hex);
 
 has startpage => (
     is => 'rw',
     isa => 'Str',
-    default => 'http://www.bbc.co.uk',
+    default => 'http://www.bbc.co.uk/',
 );
 
 sub start {
@@ -27,7 +28,7 @@ sub search {
     my $title = $self->tree->findnodes( '//title' );
     warn $title;
     $self->writer->url( $self->current_page );
-    $self->writer->html( $self->html_content );
+    $self->writer->html( sha1_hex($self->html_content) );
     $self->writer->save();
 #   my $news = $self->tree->findnodes( '//div[@class="detalhes"]/h1/a' );
 #   foreach my $item ( $news->get_nodelist ) {
@@ -38,8 +39,9 @@ sub search {
 
 sub on_link {
     my ( $self, $url ) = @_;
-    if ( $url =~ m{pagina=(1|2)$}ig ) {
-         $self->prepend( search => $url ); #  append url on end of list
+#   warn '  ==> '.$url;
+    if ( $url =~ m{^http://www.bbc.co.uk}ig ) {
+        $self->prepend( search => $url ); #  append url on end of list
     }
 }
 
@@ -55,10 +57,6 @@ sub detail {
 #   $self->data->save;
 }
 
-# after 'BUILD' => sub {
-#     my ( $self ) = @_;
-#     warn "** inicializou BBC";
-# };
 
 1;
 

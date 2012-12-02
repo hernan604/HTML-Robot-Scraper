@@ -1,5 +1,6 @@
 package HTML::Robot::Scraper::Writer::Data;
 use Moose;
+use File::Slurp;
 
 my $attrs = {
   url => {
@@ -44,6 +45,7 @@ sub save {
     warn "PROOF OF SAVE";
     warn $self->url;
     warn $self->html;
+    write_file( 'saida', { append => 1, }, $self->html . "|" . $self->url ."\n" );
     warn "depois só limpar e continuar";
 }
 

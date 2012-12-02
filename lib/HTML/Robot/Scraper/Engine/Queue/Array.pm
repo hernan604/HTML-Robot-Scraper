@@ -31,8 +31,8 @@ sub append {
             }
         );
         $caller->url_list_hash->{$url_normalized} = 1;
+        warn "APPENDED '$method' : '$url' ";
     }
-    warn "APPENDED '$method' : '$url' ";
 }
 
 ####
@@ -65,8 +65,8 @@ sub prepend {
             }
         );
         $caller->url_list_hash->{$url_normalized} = 1;
+        warn "PREPENDED '$method' : '$url' ";
     }
-    warn "PREPENDED '$method' : '$url' ";
 }
 
 sub queue_size {

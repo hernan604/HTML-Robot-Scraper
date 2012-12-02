@@ -16,5 +16,24 @@ sub parse_xpath {
     $self->tree( $tree_xpath->parse( $self->html_content ) );
 }
 
+after 'visit' => sub {
+    my ( $self ) = @_; 
+    $self->search_page_urls();
+};
+
+sub search_page_urls {
+    my ($self) = @_; #search links and pass them to on_link method within the crawlers
+    my $results = $self->tree->findnodes('//a');
+    foreach my $item ( $results->get_nodelist ) {
+        my $url = $item->attr('href');
+        if ( defined $url and $url ne '' ) {
+            my $url = $self->normalize_url( $url );
+            $self->on_link($url)
+              ;    #calls on_link and lets the user append or not to methods
+        }
+    }
+}
+
+
 1;
 

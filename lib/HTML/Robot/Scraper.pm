@@ -1,29 +1,32 @@
 package HTML::Robot::Scraper;
 use Moose;
+use URI;
+use Data::Printer;
 #use lib './';
 with qw/
 HTML::Robot::Scraper::Module::Manager
-HTML::Robot::Scraper::Engine
+HTML::Robot::Scraper::EngineUserAgent
+HTML::Robot::Scraper::EngineQueue
 HTML::Robot::Scraper::Encoding
 /;
 
 our $VERSION     = '0.01';
 
-has [ qw/response instructions local_cache images engines parsers writer reader current_page current_status html_content/ ] => (
+has [ qw/response instructions local_cache images engines parsers writer reader current_page current_status html_content before_normalize_url/ ] => (
   is => 'rw',
   isa => 'Any',
-); 
+);
 
 has parser_methods => (
     is => 'rw',
     isa => 'Any',
     default => sub { {} } ,
-); 
+);
 has parser_content_type => (
     is => 'rw',
     isa => 'Any',
     default => sub { {} } ,
-); 
+);
 
 #array queue
 has url_list => (
@@ -35,7 +38,7 @@ has url_list_hash => (
     is      => 'rw',
     isa     => 'HashRef',
     default => sub { return {}; },
-); 
+);
 has url_visited => (
     is      => 'rw',
     isa     => 'HashRef',
@@ -44,22 +47,34 @@ has url_visited => (
 
 
 sub BUILD {
-    my ( $self ) = @_; 
+    my ( $self ) = @_;
     $self->load_modules();
 }
 
 after 'BUILD' => sub {
-    my ( $self ) = @_; 
+    my ( $self ) = @_;
     $self->start( $self );
     $self->on_start( $self );
     while ( my $item = $self->queue_get_item ) {
         $self->visit($item);
     }
+    $self->on_finish( $self );
 };
 
 sub normalize_url {
     my ( $self, $url ) = @_;
-    return $url;
+    if (       ref $self->before_normalize_url eq ref {}
+        and exists $self->before_normalize_url->{is_active}
+               and $self->before_normalize_url->{is_active} == 1
+        and exists $self->before_normalize_url->{code}
+        ) {
+        $url = $self->before_normalize_url->{code}->( $url );
+    }
+    if ( defined $url ) {
+        $self->current_page( $url ) if ! defined $self->current_page;
+        my     $final_url = URI->new_abs( $url , $self->current_page );
+        return $final_url->as_string();
+    }
 }
 
 
@@ -106,7 +121,10 @@ HTML::Robot::Scraper - Your robot to parse webpages
         read  => 'HTML::Robot::Scraper::Reader::BBC', #What to do with web pages
         write => 'HTML::Robot::Scraper::Writer::Data'       #How to save web page data
     },
-    local_cache => 1,                               #save pages localy, good when developing/offline testing
+    local_cache => {
+        enabled => 1,                               #save pages localy, good when developing/offline testing
+        directory => '/home/hernan/perl/HTML-Robot-Scraper/cache/',
+    },
     images => {
         directory => '/home/images',
     },
@@ -121,8 +139,8 @@ HTML::Robot::Scraper - Your robot to parse webpages
         ],
         process => {
             'text/html' => [                        #processa content type com modulos
-                'Treebuilder::XPath', 
-                'HTML::Selector' 
+                'Treebuilder::XPath',
+                'HTML::Selector'
             ]
         }
     },
