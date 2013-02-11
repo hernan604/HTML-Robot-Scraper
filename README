@@ -39,7 +39,13 @@ my $robot = HTML::Robot::Scraper->new( {
   },
   engines => {
       queue => 'HTML::Robot::Scraper::Engine::Queue::Array', # Array|Redis
-      user_agent => 'HTML::Robot::Scraper::Engine::UserAgent::HTTP::Tiny',
+      user_agent => {
+        class => 'HTML::Robot::Scraper::Engine::UserAgent::HTTP::Tiny',
+        constructor_args => { #Optional, its HTTP::Tiny constructor args..
+            agent => 'Mozilla',
+            proxy => '127.0.0.1:228',
+        },
+      },
   },
   parsers => {
       process => {

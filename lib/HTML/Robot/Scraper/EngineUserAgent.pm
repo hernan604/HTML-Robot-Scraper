@@ -4,7 +4,6 @@ use File::Slurp;
 use Digest::SHA qw(sha1_hex);
 use JSON::XS;
 
-
 has ua_engine => (
     is => 'rw',
     isa => 'Any',
@@ -13,8 +12,15 @@ has ua_engine => (
 
 sub _build_ua_engine {
     my ( $self ) = @_;
-    Class::MOP::load_class( $self->engines->{user_agent} );
-    $self->ua_engine( $self->engines->{user_agent}->new );
+warn p $self->engines;
+    my $obj = $self->engines->{user_agent};
+    Class::MOP::load_class( $obj->{class} );
+    $self->ua_engine( $obj->{class}->new(
+        ( exists $obj->{constructor_args} ) ?
+        $obj->{constructor_args} : ()
+    ) );
+	warn p $self->ua_engine;
+warn "^^ User Agent engine BUILT !!! ^^";
 }
 
 sub visit {
@@ -30,9 +36,9 @@ sub visit {
     $self->current_status( '' );
 
     my $res;
-    if ( 
-        defined $self->local_cache 
-        && $self->local_cache->{enabled} == 1 
+    if (
+        defined $self->local_cache
+        && $self->local_cache->{enabled} == 1
         && -e $self->local_cache->{directory} .'/' . sha1_hex( $item->{ url } )
        ) {
         my $content = read_file( $self->local_cache->{directory} .'/' . sha1_hex( $item->{ url } ) );
@@ -56,7 +62,7 @@ sub visit {
 # will try to parse stuff based on content type and configurations
 ##
 after 'visit' => sub {
-    my ( $self, $item ) = @_; 
+    my ( $self, $item ) = @_;
 #   warn "after visit: PARSE stuff from \$self->html_content";
     foreach my $ct ( keys $self->parser_content_type ) {
 #use Data::Printer;      warn p $self->response;

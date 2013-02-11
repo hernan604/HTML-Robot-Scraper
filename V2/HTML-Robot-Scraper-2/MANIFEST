@@ -1,0 +1,8 @@
+MANIFEST
+README
+LICENSE
+Todo
+Changes
+Makefile.PL
+lib/HTML/Robot/Scrapper.pm
+t/001_load.t

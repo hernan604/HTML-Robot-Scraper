@@ -12,6 +12,14 @@ sub visit {
     my $res = HTTP::Tiny->new->get( $item->{ url } );
     #warn p $res;
     return $res;
-} 
+}
+
+has ua => (
+    is => 'rw',
+    isa => 'Any',
+    default => sub {
+        return HTTP::Tiny->new();
+    },
+);
 
 1;

@@ -11,8 +11,11 @@ has queue_engine => (
 
 sub _build_queue_engine {
     my ( $self ) = @_;
-    Class::MOP::load_class( $self->engines->{queue} );
-    $self->queue_engine( $self->engines->{queue}->new );
+    my $obj = $self->engines;
+    Class::MOP::load_class( $obj->{queue} );
+    $self->queue_engine( $obj->{queue}->new );
+warn p $self->queue_engine;
+warn "^^ QUEUE ENGINE BUILT!! ^^";
 }
 
 # The engines must implement these methods

@@ -149,12 +149,6 @@ HTML::Robot::Scraper - Your robot to parse webpages
 
 =head1 DESCRIPTION
 
-Stub documentation for this module was created by ExtUtils::ModuleMaker.
-It looks like the author of the extension was negligent enough
-to leave the stub unedited.
-
-Blah blah blah.
-
 
 =head1 USAGE
 
