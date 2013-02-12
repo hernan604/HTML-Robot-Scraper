@@ -4,6 +4,8 @@ use Moo;
 use Data::Printer;
 use Digest::SHA qw(sha1_hex);
 
+has passed_key_values => ( is => 'rw' );
+has headers           => ( is => 'rw' );
 has startpage => (
     is => 'rw',
 #   isa => 'Str',
@@ -12,13 +14,14 @@ has startpage => (
 
 sub start {
     my ( $self ) = @_;
-    warn "**** Inicializado BBC ****";
 }
 
 sub on_start {
     my ( $self, $robot ) = @_;
 #   $robot->queue->append( search => $self->startpage );
     $robot->queue->append( search => 'http://www.zap.com.br/' ); #iso-8859-1
+    $robot->queue->append( search => 'http://www.uol.com.br/' );
+    $robot->queue->append( search => 'http://www.google.com/' );
     warn p $robot;
 #   warn p $self->url_list;
 }

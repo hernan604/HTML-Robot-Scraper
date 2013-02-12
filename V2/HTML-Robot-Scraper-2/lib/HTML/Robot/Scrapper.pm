@@ -166,7 +166,18 @@ sub start {
     $self->reader->on_start( $self );
     while ( my $item = $self->queue->queue_get_item ) {
         my $method = $item->{ method };
-        $self->useragent->visit($item);
+        my $res = $self->useragent->visit($item);
+
+        #clean up&set passed_key_values
+        $self->reader->passed_key_values( {} );
+        $self->reader->passed_key_values( $item->{passed_key_values} )
+            if exists $item->{passed_key_values};
+
+        #clean up&set passed_key_values
+        $self->reader->headers( {} );
+        $self->reader->headers( $res->{headers} )
+            if exists $res->{headers};
+
         $self->reader->$method( $self );
     }
     $self->reader->on_finish( $self );

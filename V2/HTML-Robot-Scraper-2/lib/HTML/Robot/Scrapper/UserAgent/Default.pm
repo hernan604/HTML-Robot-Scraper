@@ -9,6 +9,7 @@ has content => ( is => 'rw' );
 has content_type => ( is => 'rw', );
 has charset => ( is => 'rw', );
 has current_page => ( is => 'rw', );
+has ua => ( is => 'rw', default => sub { HTTP::Tiny->new() } );
 
 sub _headers {
     my ( $self, $robot, $headers ) = @_;
@@ -41,11 +42,42 @@ sub _current_page {
 }
 
 #visit the url and load into xpath and redirects to the method
+
+=head2 visit
+Will visit the url you appended/prepended to the queue
+ex.
+
+$robot->queue->append( search => 'http://www.url.com',{
+    passed_key_values => {
+        some   => 'vars i collected here...... and ....',
+        i_will => 'pass them to the next page because ...',
+        i_need => 'stuff from this page and the other '
+    },
+    request => [ <---- OPTIONAL... force custom request
+        'GET',
+        'http://www.lopes.com.br/imoveis/busca/-/'.$estado.'/-/-/-/aluguel-de-0-a-10000/de-0-ate-1000-m2/-/60',
+        {
+            headers => {
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            },
+            content => '',
+        }
+    ]
+} ); #Aluguel
+=cut
+
 sub visit {
     my ( $self, $robot, $item ) = @_;
-    warn "HTTP TINY";
-#   warn p $item;
-    my $res = HTTP::Tiny->new->get( $item->{ url } );
+    my $res = undef;
+    if ( exists $item->{ request } and
+        ref $item->{ request } eq ref [] )
+    {
+        $res = $self->ua->request( @{ $item->{ request } } );
+    }
+    else
+    {
+        $res = $self->ua->get( $item->{ url } );
+    }
     my $headers = $res->{ headers };
     $self->content(
         $robot->encoding->safe_encode( $headers , $res->{ content } )
@@ -57,9 +89,10 @@ sub visit {
 sub parse_content {
     my ( $self, $robot, $res ) = @_;
     my $content_types_avail = $robot->parser->content_types;
+    #content type
     my $content_type =$res->{headers}->{'content-type'};
     $self->content_type( $content_type );
-
+    #charset
     my $content_charset = $self->charset_from_headers( $res->{ headers } );
     $self->charset( $content_charset );
 

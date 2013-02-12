@@ -31,22 +31,20 @@ has url_visited => (
 ### 'Something from page one that should be used on another page' }
 sub append {
     my ( $self, $robot, $method, $url, $args ) = @_;
-    my $query_params = $args->{query_params}
-      if ( exists $args->{query_params} );
-    my $passed_key_values = $args->{passed_key_values}
-      if ( exists $args->{passed_key_values} );
     if ( !exists $self->url_visited->{$url}
         and !exists $self->url_list_hash->{$url} )
     {
         #inserts stuff into @{ $robot->url_list } which is handled by 'visit'
-        push(
-            @{ $self->url_list },
-            {
+        my $url_args = {
                 method              => $method,
                 url                 => $url,
-                query_params        => $query_params,
-                passed_key_values   => $passed_key_values,
-            }
+        };
+        foreach my $k ( keys $args ) {
+            $url_args->{$k} = $args->{$k};
+        }
+        push(
+            @{ $self->url_list },
+            $url_args
         );
         $self->url_list_hash->{$url} = 1;
         warn "APPENDED '$method' : '$url' ";
@@ -63,23 +61,21 @@ sub append {
 ### 'Something from page one that should be used on another page' }
 sub prepend {
     my ( $self, $robot, $method, $url, $args ) = @_;
-    my $query_params = $args->{query_params}
-      if ( exists $args->{query_params} );
-    my $passed_key_values = $args->{passed_key_values}
-      if ( exists $args->{passed_key_values} );
     if ( !exists $self->url_visited->{$url}
-        and !exists $robot->url_list_hash->{$url} )
+        and !exists $self->url_list_hash->{$url} )
     {
 
         #inserts stuff into @{ $robot->url_list } which is handled by 'visit'
-        unshift(
-            @{ $self->url_list },
-            {
+        my $url_args = {
                 method              => $method,
                 url                 => $url,
-                query_params        => $query_params,
-                passed_key_values   => $passed_key_values,
-            }
+        };
+        foreach my $k ( keys $args ) {
+            $url_args->{$k} = $args->{$k};
+        }
+        unshift(
+            @{ $self->url_list },
+            $url_args
         );
         $self->url_list_hash->{$url} = 1;
         warn "PREPENDED '$method' : '$url' ";

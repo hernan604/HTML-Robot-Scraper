@@ -12,7 +12,6 @@ sub safe_encode {
     return decode_utf8($content) unless ref($decoder);
     my $content_utf8 = $decoder->decode($content);
     return $content_utf8;
-
 }
 
 1;
