@@ -4,5 +4,5 @@ LICENSE
 Todo
 Changes
 Makefile.PL
-lib/HTML/Robot/Scraper.pm
+lib/HTML/Robot/Scrapper.pm
 t/001_load.t
