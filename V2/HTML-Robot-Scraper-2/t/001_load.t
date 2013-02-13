@@ -4,11 +4,12 @@
 
 use Test::More;
 use HTML::Robot::Scrapper;
+use CHI;
 BEGIN { use_ok( 'HTML::Robot::Scrapper', 'use is fine' ); }
-
+warn `pwd`;
 my $robot = HTML::Robot::Scrapper->new (
     reader    => {                                                       # REQ
-       #class => 'HTML::Robot::Scrapper::Reader::TestReader',
+ #      class => 'HTML::Robot::Scrapper::Reader::TestReader',
         class => 'HTML::Robot::Scrapper::Reader::Lopes',
 #       args  => { #will be passed to ->new(here) in class^^
 #         argument1 => 'xx'
@@ -16,7 +17,15 @@ my $robot = HTML::Robot::Scrapper->new (
     },
     writer    => {class => 'HTML::Robot::Scrapper::Writer::TestWriter',}, #REQ
     benchmark => {class => 'Default'},
-    cache     => {class => 'Default'},
+    cache     => {
+        class => 'Default',
+        args  => {
+            cache => CHI->new(
+                    driver => 'BerkeleyDB',
+                    root_dir => `pwd`
+            ),
+        },
+    },
     log       => {class => 'Default'},
     parser    => {class => 'Default'},
     queue     => {class => 'Default'},

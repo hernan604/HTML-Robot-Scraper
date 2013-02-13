@@ -1,41 +1,36 @@
 package HTML::Robot::Scrapper::Reader::TestReader;
 use Moo;
+with 'HTML::Robot::Scrapper::Reader';
 #use Moose::Role;
 use Data::Printer;
 use Digest::SHA qw(sha1_hex);
 
-has passed_key_values => ( is => 'rw' );
-has headers           => ( is => 'rw' );
 has startpage => (
     is => 'rw',
 #   isa => 'Str',
     default => sub { return 'http://www.bbc.co.uk/'} ,
 );
 
-sub start {
-    my ( $self ) = @_;
-}
-
 sub on_start {
-    my ( $self, $robot ) = @_;
-#   $robot->queue->append( search => $self->startpage );
-    $robot->queue->append( search => 'http://www.zap.com.br/' ); #iso-8859-1
-    $robot->queue->append( search => 'http://www.uol.com.br/' );
-    $robot->queue->append( search => 'http://www.google.com/' );
-    warn p $robot;
+    my ( $self, $self->robot ) = @_;
+#   $self->append( search => $self->startpage );
+    $self->append( search => 'http://www.zap.com.br/' ); #iso-8859-1
+    $self->append( search => 'http://www.uol.com.br/' );
+    $self->append( search => 'http://www.google.com/' );
+    warn p $self->robot;
 #   warn p $self->url_list;
 }
 
 sub search {
-    my ( $self, $robot ) = @_;
-    my $title = $robot->parser->engine->tree->findvalue( '//title' );
-#   my $title = $robot->parser->engine->tree->findnodes( '//title' );
-#   warn p $robot->parser->engine->tree;
+    my ( $self, $self->robot ) = @_;
+    my $title = $self->robot->parser->engine->tree->findvalue( '//title' );
+#   my $title = $self->robot->parser->engine->tree->findnodes( '//title' );
+#   warn p $self->robot->parser->engine->tree;
     warn $title;
     warn $title;
     warn $title;
-    warn $robot->useragent->current_page;
-#   $self->writer->url( $robot->instance->current_page );
+    warn $self->current_page;
+#   $self->writer->url( $self->robot->instance->current_page );
 #   $self->writer->html( sha1_hex($self->html_content) );
 #   $self->writer->save();
 #   my $news = $self->tree->findnodes( '//div[@class="detalhes"]/h1/a' );

@@ -16,7 +16,7 @@
 #     BUILD_REQUIRES => {  }
 #     CONFIGURE_REQUIRES => {  }
 #     NAME => q[HTML::Robot::Scrapper]
-#     PREREQ_PM => { Test::Simple=>q[0.44] }
+#     PREREQ_PM => { Test::Simple=>q[0.44], CHI=>q[0], CHI::Driver::BerkeleyDB=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/HTML/Robot/Scrapper.pm]
 
@@ -165,6 +165,7 @@ MAN3PODS = lib/HTML/Robot/Scrapper.pm \
 	lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
 	lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
 	lib/HTML/Robot/Scrapper/Queue/Base.pm \
+	lib/HTML/Robot/Scrapper/Reader.pm \
 	lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
 	lib/HTML/Robot/Scrapper/UserAgent/Default.pm
 
@@ -206,58 +207,61 @@ TO_INST_PM = lib/HTML/Robot/Scrapper.pm \
 	lib/HTML/Robot/Scrapper/Queue/Array.pm \
 	lib/HTML/Robot/Scrapper/Queue/Base.pm \
 	lib/HTML/Robot/Scrapper/Queue/Default.pm \
+	lib/HTML/Robot/Scrapper/Reader.pm \
 	lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
 	lib/HTML/Robot/Scrapper/Reader/TestReader.pm \
 	lib/HTML/Robot/Scrapper/UserAgent/Base.pm \
 	lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
 	lib/HTML/Robot/Scrapper/Writer/TestWriter.pm
 
-PM_TO_BLIB = lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
-	blib/lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
-	lib/HTML/Robot/Scrapper.pm \
-	blib/lib/HTML/Robot/Scrapper.pm \
-	lib/HTML/Robot/Scrapper/Queue/Default.pm \
-	blib/lib/HTML/Robot/Scrapper/Queue/Default.pm \
-	lib/HTML/Robot/Scrapper/Parser/Default.pm \
-	blib/lib/HTML/Robot/Scrapper/Parser/Default.pm \
-	lib/HTML/Robot/Scrapper/Log/Base.pm \
-	blib/lib/HTML/Robot/Scrapper/Log/Base.pm \
-	lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
-	blib/lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
-	lib/HTML/Robot/Scrapper/Queue/Array.pm \
-	blib/lib/HTML/Robot/Scrapper/Queue/Array.pm \
-	lib/HTML/Robot/Scrapper/Writer/TestWriter.pm \
+PM_TO_BLIB = lib/HTML/Robot/Scrapper/Writer/TestWriter.pm \
 	blib/lib/HTML/Robot/Scrapper/Writer/TestWriter.pm \
-	lib/HTML/Robot/Scrapper/Log/Default.pm \
-	blib/lib/HTML/Robot/Scrapper/Log/Default.pm \
-	lib/HTML/Robot/Scrapper/Reader/TestReader.pm \
-	blib/lib/HTML/Robot/Scrapper/Reader/TestReader.pm \
-	lib/HTML/Robot/Scrapper/Instance/Base.pm \
-	blib/lib/HTML/Robot/Scrapper/Instance/Base.pm \
-	lib/HTML/Robot/Scrapper/Parser/Base.pm \
-	blib/lib/HTML/Robot/Scrapper/Parser/Base.pm \
-	lib/HTML/Robot/Scrapper/Benchmark/Default.pm \
-	blib/lib/HTML/Robot/Scrapper/Benchmark/Default.pm \
-	lib/HTML/Robot/Scrapper/Benchmark/Base.pm \
-	blib/lib/HTML/Robot/Scrapper/Benchmark/Base.pm \
-	lib/HTML/Robot/Scrapper/UserAgent/Base.pm \
-	blib/lib/HTML/Robot/Scrapper/UserAgent/Base.pm \
-	lib/HTML/Robot/Scrapper/Cache/Default.pm \
-	blib/lib/HTML/Robot/Scrapper/Cache/Default.pm \
-	lib/HTML/Robot/Scrapper/Encoding/Default.pm \
-	blib/lib/HTML/Robot/Scrapper/Encoding/Default.pm \
-	lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
-	blib/lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
-	lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
-	blib/lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
 	lib/HTML/Robot/Scrapper/Instance/Default.pm \
 	blib/lib/HTML/Robot/Scrapper/Instance/Default.pm \
+	lib/HTML/Robot/Scrapper/Parser/Base.pm \
+	blib/lib/HTML/Robot/Scrapper/Parser/Base.pm \
+	lib/HTML/Robot/Scrapper/Reader.pm \
+	blib/lib/HTML/Robot/Scrapper/Reader.pm \
+	lib/HTML/Robot/Scrapper/Queue/Array.pm \
+	blib/lib/HTML/Robot/Scrapper/Queue/Array.pm \
+	lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
+	blib/lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
+	lib/HTML/Robot/Scrapper/Cache/Default.pm \
+	blib/lib/HTML/Robot/Scrapper/Cache/Default.pm \
+	lib/HTML/Robot/Scrapper/Benchmark/Default.pm \
+	blib/lib/HTML/Robot/Scrapper/Benchmark/Default.pm \
+	lib/HTML/Robot/Scrapper.pm \
+	blib/lib/HTML/Robot/Scrapper.pm \
+	lib/HTML/Robot/Scrapper/Benchmark/Base.pm \
+	blib/lib/HTML/Robot/Scrapper/Benchmark/Base.pm \
+	lib/HTML/Robot/Scrapper/Queue/Default.pm \
+	blib/lib/HTML/Robot/Scrapper/Queue/Default.pm \
+	lib/HTML/Robot/Scrapper/Instance/Base.pm \
+	blib/lib/HTML/Robot/Scrapper/Instance/Base.pm \
+	lib/HTML/Robot/Scrapper/Log/Base.pm \
+	blib/lib/HTML/Robot/Scrapper/Log/Base.pm \
+	lib/HTML/Robot/Scrapper/Parser/Default.pm \
+	blib/lib/HTML/Robot/Scrapper/Parser/Default.pm \
+	lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
+	blib/lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
+	lib/HTML/Robot/Scrapper/Reader/TestReader.pm \
+	blib/lib/HTML/Robot/Scrapper/Reader/TestReader.pm \
 	lib/HTML/Robot/Scrapper/Encoding/Base.pm \
 	blib/lib/HTML/Robot/Scrapper/Encoding/Base.pm \
+	lib/HTML/Robot/Scrapper/Cache/Base.pm \
+	blib/lib/HTML/Robot/Scrapper/Cache/Base.pm \
+	lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
+	blib/lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
 	lib/HTML/Robot/Scrapper/Queue/Base.pm \
 	blib/lib/HTML/Robot/Scrapper/Queue/Base.pm \
-	lib/HTML/Robot/Scrapper/Cache/Base.pm \
-	blib/lib/HTML/Robot/Scrapper/Cache/Base.pm
+	lib/HTML/Robot/Scrapper/Encoding/Default.pm \
+	blib/lib/HTML/Robot/Scrapper/Encoding/Default.pm \
+	lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
+	blib/lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
+	lib/HTML/Robot/Scrapper/UserAgent/Base.pm \
+	blib/lib/HTML/Robot/Scrapper/UserAgent/Base.pm \
+	lib/HTML/Robot/Scrapper/Log/Default.pm \
+	blib/lib/HTML/Robot/Scrapper/Log/Default.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -479,19 +483,21 @@ POD2MAN = $(POD2MAN_EXE)
 
 
 manifypods : pure_all  \
-	lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
-	lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
-	lib/HTML/Robot/Scrapper.pm \
 	lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
+	lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
+	lib/HTML/Robot/Scrapper/Queue/Base.pm \
+	lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
 	lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
-	lib/HTML/Robot/Scrapper/Queue/Base.pm
+	lib/HTML/Robot/Scrapper.pm \
+	lib/HTML/Robot/Scrapper/Reader.pm
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) \
-	  lib/HTML/Robot/Scrapper/UserAgent/Default.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::UserAgent::Default.$(MAN3EXT) \
-	  lib/HTML/Robot/Scrapper/Reader/Lopes.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::Reader::Lopes.$(MAN3EXT) \
-	  lib/HTML/Robot/Scrapper.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper.$(MAN3EXT) \
 	  lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::Parser::XML::XPath.$(MAN3EXT) \
+	  lib/HTML/Robot/Scrapper/UserAgent/Default.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::UserAgent::Default.$(MAN3EXT) \
+	  lib/HTML/Robot/Scrapper/Queue/Base.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::Queue::Base.$(MAN3EXT) \
+	  lib/HTML/Robot/Scrapper/Reader/Lopes.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::Reader::Lopes.$(MAN3EXT) \
 	  lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath.$(MAN3EXT) \
-	  lib/HTML/Robot/Scrapper/Queue/Base.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::Queue::Base.$(MAN3EXT) 
+	  lib/HTML/Robot/Scrapper.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper.$(MAN3EXT) \
+	  lib/HTML/Robot/Scrapper/Reader.pm $(INST_MAN3DIR)/HTML::Robot::Scrapper::Reader.$(MAN3EXT) 
 
 
 
@@ -518,22 +524,22 @@ clean_subdirs :
 
 clean :: clean_subdirs
 	- $(RM_F) \
-	  perlmain.c lib$(BASEEXT).def \
-	  $(BOOTSTRAP) core.[0-9][0-9][0-9] \
-	  $(BASEEXT).exp so_locations \
-	  core.[0-9] mon.out \
-	  $(INST_ARCHAUTODIR)/extralibs.ld core.[0-9][0-9][0-9][0-9][0-9] \
-	  perl$(EXE_EXT) pm_to_blib.ts \
-	  blibdirs.ts $(INST_ARCHAUTODIR)/extralibs.all \
-	  $(MAKE_APERL_FILE) core.[0-9][0-9] \
-	  *$(OBJ_EXT) pm_to_blib \
-	  core.*perl.*.? $(BASEEXT).bso \
-	  *perl.core $(BASEEXT).x \
-	  $(BASEEXT).def MYMETA.yml \
-	  MYMETA.json *$(LIB_EXT) \
-	  core tmon.out \
-	  core.[0-9][0-9][0-9][0-9] perl.exe \
-	  perl 
+	  core.*perl.*.? core.[0-9][0-9] \
+	  pm_to_blib core.[0-9][0-9][0-9][0-9] \
+	  MYMETA.json lib$(BASEEXT).def \
+	  $(BOOTSTRAP) perl$(EXE_EXT) \
+	  *$(LIB_EXT) core.[0-9][0-9][0-9][0-9][0-9] \
+	  mon.out core.[0-9][0-9][0-9] \
+	  perl MYMETA.yml \
+	  blibdirs.ts perl.exe \
+	  *$(OBJ_EXT) $(BASEEXT).exp \
+	  $(BASEEXT).x so_locations \
+	  pm_to_blib.ts tmon.out \
+	  *perl.core $(INST_ARCHAUTODIR)/extralibs.all \
+	  $(BASEEXT).bso core \
+	  $(BASEEXT).def $(MAKE_APERL_FILE) \
+	  core.[0-9] $(INST_ARCHAUTODIR)/extralibs.ld \
+	  perlmain.c 
 	- $(RM_RF) \
 	  blib 
 	- $(MV) $(FIRST_MAKEFILE) $(MAKEFILE_OLD) $(DEV_NULL)
@@ -548,7 +554,7 @@ realclean_subdirs :
 # Delete temporary files (via clean) and also delete dist files
 realclean purge ::  clean realclean_subdirs
 	- $(RM_F) \
-	  $(MAKEFILE_OLD) $(FIRST_MAKEFILE) 
+	  $(FIRST_MAKEFILE) $(MAKEFILE_OLD) 
 	- $(RM_RF) \
 	  $(DISTVNAME) 
 
@@ -576,6 +582,8 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - t' >> META_new.yml
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META_new.yml
+	$(NOECHO) $(ECHO) '  CHI: 0' >> META_new.yml
+	$(NOECHO) $(ECHO) '  CHI::Driver::BerkeleyDB: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Test::Simple: 0.44' >> META_new.yml
 	$(NOECHO) $(ECHO) 'version: 0.01' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
@@ -614,6 +622,8 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "runtime" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
+	$(NOECHO) $(ECHO) '            "CHI" : "0",' >> META_new.json
+	$(NOECHO) $(ECHO) '            "CHI::Driver::BerkeleyDB" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Test::Simple" : "0.44"' >> META_new.json
 	$(NOECHO) $(ECHO) '         }' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
@@ -919,6 +929,8 @@ ppd :
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Your robot to parse webpages</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Hernan Lopes (hernan@cpan.org)</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="CHI::" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="CHI::Driver::BerkeleyDB" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE VERSION="0.44" NAME="Test::Simple" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-5.17" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> $(DISTNAME).ppd
@@ -930,29 +942,30 @@ ppd :
 
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
-	  lib/HTML/Robot/Scrapper/Reader/Lopes.pm blib/lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
-	  lib/HTML/Robot/Scrapper.pm blib/lib/HTML/Robot/Scrapper.pm \
-	  lib/HTML/Robot/Scrapper/Queue/Default.pm blib/lib/HTML/Robot/Scrapper/Queue/Default.pm \
-	  lib/HTML/Robot/Scrapper/Parser/Default.pm blib/lib/HTML/Robot/Scrapper/Parser/Default.pm \
-	  lib/HTML/Robot/Scrapper/Log/Base.pm blib/lib/HTML/Robot/Scrapper/Log/Base.pm \
-	  lib/HTML/Robot/Scrapper/UserAgent/Default.pm blib/lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
-	  lib/HTML/Robot/Scrapper/Queue/Array.pm blib/lib/HTML/Robot/Scrapper/Queue/Array.pm \
 	  lib/HTML/Robot/Scrapper/Writer/TestWriter.pm blib/lib/HTML/Robot/Scrapper/Writer/TestWriter.pm \
-	  lib/HTML/Robot/Scrapper/Log/Default.pm blib/lib/HTML/Robot/Scrapper/Log/Default.pm \
-	  lib/HTML/Robot/Scrapper/Reader/TestReader.pm blib/lib/HTML/Robot/Scrapper/Reader/TestReader.pm \
-	  lib/HTML/Robot/Scrapper/Instance/Base.pm blib/lib/HTML/Robot/Scrapper/Instance/Base.pm \
-	  lib/HTML/Robot/Scrapper/Parser/Base.pm blib/lib/HTML/Robot/Scrapper/Parser/Base.pm \
-	  lib/HTML/Robot/Scrapper/Benchmark/Default.pm blib/lib/HTML/Robot/Scrapper/Benchmark/Default.pm \
-	  lib/HTML/Robot/Scrapper/Benchmark/Base.pm blib/lib/HTML/Robot/Scrapper/Benchmark/Base.pm \
-	  lib/HTML/Robot/Scrapper/UserAgent/Base.pm blib/lib/HTML/Robot/Scrapper/UserAgent/Base.pm \
-	  lib/HTML/Robot/Scrapper/Cache/Default.pm blib/lib/HTML/Robot/Scrapper/Cache/Default.pm \
-	  lib/HTML/Robot/Scrapper/Encoding/Default.pm blib/lib/HTML/Robot/Scrapper/Encoding/Default.pm \
-	  lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm blib/lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
-	  lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm blib/lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
 	  lib/HTML/Robot/Scrapper/Instance/Default.pm blib/lib/HTML/Robot/Scrapper/Instance/Default.pm \
+	  lib/HTML/Robot/Scrapper/Parser/Base.pm blib/lib/HTML/Robot/Scrapper/Parser/Base.pm \
+	  lib/HTML/Robot/Scrapper/Reader.pm blib/lib/HTML/Robot/Scrapper/Reader.pm \
+	  lib/HTML/Robot/Scrapper/Queue/Array.pm blib/lib/HTML/Robot/Scrapper/Queue/Array.pm \
+	  lib/HTML/Robot/Scrapper/Reader/Lopes.pm blib/lib/HTML/Robot/Scrapper/Reader/Lopes.pm \
+	  lib/HTML/Robot/Scrapper/Cache/Default.pm blib/lib/HTML/Robot/Scrapper/Cache/Default.pm \
+	  lib/HTML/Robot/Scrapper/Benchmark/Default.pm blib/lib/HTML/Robot/Scrapper/Benchmark/Default.pm \
+	  lib/HTML/Robot/Scrapper.pm blib/lib/HTML/Robot/Scrapper.pm \
+	  lib/HTML/Robot/Scrapper/Benchmark/Base.pm blib/lib/HTML/Robot/Scrapper/Benchmark/Base.pm \
+	  lib/HTML/Robot/Scrapper/Queue/Default.pm blib/lib/HTML/Robot/Scrapper/Queue/Default.pm \
+	  lib/HTML/Robot/Scrapper/Instance/Base.pm blib/lib/HTML/Robot/Scrapper/Instance/Base.pm \
+	  lib/HTML/Robot/Scrapper/Log/Base.pm blib/lib/HTML/Robot/Scrapper/Log/Base.pm \
+	  lib/HTML/Robot/Scrapper/Parser/Default.pm blib/lib/HTML/Robot/Scrapper/Parser/Default.pm \
+	  lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm blib/lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm \
+	  lib/HTML/Robot/Scrapper/Reader/TestReader.pm blib/lib/HTML/Robot/Scrapper/Reader/TestReader.pm \
 	  lib/HTML/Robot/Scrapper/Encoding/Base.pm blib/lib/HTML/Robot/Scrapper/Encoding/Base.pm \
+	  lib/HTML/Robot/Scrapper/Cache/Base.pm blib/lib/HTML/Robot/Scrapper/Cache/Base.pm \
+	  lib/HTML/Robot/Scrapper/UserAgent/Default.pm blib/lib/HTML/Robot/Scrapper/UserAgent/Default.pm \
 	  lib/HTML/Robot/Scrapper/Queue/Base.pm blib/lib/HTML/Robot/Scrapper/Queue/Base.pm \
-	  lib/HTML/Robot/Scrapper/Cache/Base.pm blib/lib/HTML/Robot/Scrapper/Cache/Base.pm 
+	  lib/HTML/Robot/Scrapper/Encoding/Default.pm blib/lib/HTML/Robot/Scrapper/Encoding/Default.pm \
+	  lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm blib/lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm \
+	  lib/HTML/Robot/Scrapper/UserAgent/Base.pm blib/lib/HTML/Robot/Scrapper/UserAgent/Base.pm \
+	  lib/HTML/Robot/Scrapper/Log/Default.pm blib/lib/HTML/Robot/Scrapper/Log/Default.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 

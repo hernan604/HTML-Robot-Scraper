@@ -34,6 +34,7 @@ sub append {
     if ( !exists $self->url_visited->{$url}
         and !exists $self->url_list_hash->{$url} )
     {
+        $args = {} if ! defined $args;
         #inserts stuff into @{ $robot->url_list } which is handled by 'visit'
         my $url_args = {
                 method              => $method,
@@ -64,7 +65,7 @@ sub prepend {
     if ( !exists $self->url_visited->{$url}
         and !exists $self->url_list_hash->{$url} )
     {
-
+        $args = {} if ! defined $args;
         #inserts stuff into @{ $robot->url_list } which is handled by 'visit'
         my $url_args = {
                 method              => $method,

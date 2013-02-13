@@ -159,6 +159,7 @@ before 'start' => sub {
         #give access to this class inside other classes
         $self->$k->robot( $self );
     }
+    $self->reader->robot( $self );
 };
 
 sub start {
@@ -178,9 +179,12 @@ sub start {
         $self->reader->headers( $res->{headers} )
             if exists $res->{headers};
 
-        $self->reader->$method( $self );
+        #TODO: set the cookies in $self->reader->cookies
+        # that way its possible to use and update 1 same cookie
+
+        $self->reader->$method( );
     }
-    $self->reader->on_finish( $self );
+    $self->reader->on_finish( );
 }
 
 =head1 NAME

@@ -4,16 +4,29 @@ use Moo;
 has robot => ( is => 'rw', );
 has engine => ( is => 'rw', );
 
-sub read {
-    my ( $self ) = @_;
+sub get {
+    my ( $self ) = shift;
+    $self->engine->get( @_ );
 }
 
-sub write {
-    my ( $self ) = @_;
+sub set {
+    my ( $self ) = shift;
+    $self->engine->set( @_ );
 }
 
-sub reset {
-    my ( $self ) = @_;
+sub remove {
+    my ( $self ) = shift;
+    $self->engine->remove( @_ );
+}
+
+sub expire {
+    my ( $self ) = shift;
+    $self->engine->expire( @_ );
+}
+
+sub compute {
+    my ( $self ) = shift;
+    $self->engine->compute( @_ );
 }
 
 1;

@@ -10,5 +10,7 @@ WriteMakefile(
     ABSTRACT     => 'Your robot to parse webpages',
     PREREQ_PM    => {
                      'Test::Simple' => 0.44,
+                     'CHI' => 0,
+                     'CHI::Driver::BerkeleyDB' => 0,
                     },
 );
