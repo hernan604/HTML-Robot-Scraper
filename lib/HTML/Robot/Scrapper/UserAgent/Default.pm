@@ -3,6 +3,7 @@ use Moo;
 use Data::Printer;
 use HTTP::Tiny;
 use HTTP::Headers::Util qw(split_header_words);
+use Digest::SHA1  qw(sha1 sha1_hex sha1_base64);
 
 has headers => ( is => 'rw' );
 has content => ( is => 'rw' );
@@ -68,6 +69,29 @@ $robot->queue->append( search => 'http://www.url.com',{
 
 sub visit {
     my ( $self, $robot, $item ) = @_;
+    if ( $robot->cache->is_active ) {
+        my $sha1 = Digest::SHA1->new;
+        $sha1->add( $item->{ url } );
+        my $sha1_key = $sha1->hexdigest;
+        my $res = $robot->cache->get( $sha1_key );
+        if ( ! $res ) {
+            $res = $self->_visit( $robot, $item );
+            $robot->cache->set( $sha1_key, $res );
+            $self->parse_response( $robot, $res );
+            return $res;
+        } else {
+            $self->parse_response( $robot, $res );
+            return $res;
+        }
+    } else {
+        my $res = $self->_visit( $robot, $item );
+        $self->parse_response( $robot, $res );
+        return $res;
+    }
+}
+
+sub _visit {
+    my ( $self, $robot, $item ) = @_; 
     my $res = undef;
     if ( exists $item->{ request } and
         ref $item->{ request } eq ref [] )
@@ -78,12 +102,17 @@ sub visit {
     {
         $res = $self->ua->get( $item->{ url } );
     }
+    $self->parse_response( $robot, $res );
+    return $res;
+}
+
+sub parse_response {
+    my ( $self, $robot, $res ) = @_; 
     my $headers = $res->{ headers };
     $self->content(
         $robot->encoding->safe_encode( $headers , $res->{ content } )
     );
     $self->parse_content( $robot, $res );
-    return $res;
 }
 
 sub parse_content {

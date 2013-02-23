@@ -12,7 +12,7 @@ has startpage => (
 );
 
 sub on_start {
-    my ( $self, $self->robot ) = @_;
+    my ( $self ) = @_;
 #   $self->append( search => $self->startpage );
     $self->append( search => 'http://www.zap.com.br/' ); #iso-8859-1
     $self->append( search => 'http://www.uol.com.br/' );
@@ -22,7 +22,7 @@ sub on_start {
 }
 
 sub search {
-    my ( $self, $self->robot ) = @_;
+    my ( $self ) = @_;
     my $title = $self->robot->parser->engine->tree->findvalue( '//title' );
 #   my $title = $self->robot->parser->engine->tree->findnodes( '//title' );
 #   warn p $self->robot->parser->engine->tree;

@@ -3,6 +3,10 @@ use Moo;
 
 has robot => ( is => 'rw', );
 has engine => ( is => 'rw', );
+has is_active => (
+    is      => 'rw',
+    default => sub { 0 },
+);
 
 sub get {
     my ( $self ) = shift;

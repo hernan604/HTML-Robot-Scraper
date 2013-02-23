@@ -9,8 +9,8 @@ BEGIN { use_ok( 'HTML::Robot::Scrapper', 'use is fine' ); }
 warn `pwd`;
 my $robot = HTML::Robot::Scrapper->new (
     reader    => {                                                       # REQ
- #      class => 'HTML::Robot::Scrapper::Reader::TestReader',
-        class => 'HTML::Robot::Scrapper::Reader::Lopes',
+        class => 'HTML::Robot::Scrapper::Reader::TestReader',
+#       class => 'HTML::Robot::Scrapper::Reader::Lopes',
 #       args  => { #will be passed to ->new(here) in class^^
 #         argument1 => 'xx'
 #       },
@@ -20,9 +20,10 @@ my $robot = HTML::Robot::Scrapper->new (
     cache     => {
         class => 'Default',
         args  => {
+            is_active => 1,
             cache => CHI->new(
                     driver => 'BerkeleyDB',
-                    root_dir => `pwd`
+                    root_dir => "/home/catalyst/HTML-Robot-Scraper/cache/",
             ),
         },
     },

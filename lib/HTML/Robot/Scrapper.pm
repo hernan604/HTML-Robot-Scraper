@@ -110,44 +110,62 @@ sub BUILDARGS {
     my $options = {@args};
 
     foreach my $option ( keys $CUSTOMIZABLES ) {
-
-        my $base_class  = $CUSTOMIZABLES->{$option} .'::Base';
-        my $engine_class = $CUSTOMIZABLES->{$option} .'::Default';
-        if ( exists $options->{ $option } and
-             exists $options->{ $option }->{ class } ) {
-            $engine_class = $CUSTOMIZABLES->{$option}
-                . '::' . $options->{ $option }->{ class };
-        }
-
-        #load base class interface
-        try {
-            $base_class = load_class( $base_class );
-        } catch {
-            warn "Could not load base_class: " . $base_class;
-        };
-warn $base_class;
-
-        #load custom engine
-        try {
-            $engine_class = load_class( $engine_class );
-        } catch {
-            $engine_class = load_class( $options->{ $option }->{ class } );
-        };
-warn $engine_class;
-warn $option;
-        my $args = $options->{$option}->{args}||{};
-        $options->{$option} = $base_class->new(
-            engine => $engine_class->new( $args ),
-        );
+        &_load_custom_class( $options, $option, $CUSTOMIZABLES );
     }
-    my $reader_class = load_class( $options->{ reader }->{ class } );
-    $options->{reader} = $reader_class->new( $options->{ reader }->{ args } || {} );
-
-    my $writer_class = load_class( $options->{ writer }->{ class } );
-    $options->{writer} = $writer_class->new( $options->{ writer }->{ args } || {} );
+    &_load_reader( $options );
+    &_load_writer( $options );
 
     return $options;
 };
+
+sub _load_custom_class {
+    my ( $options, $option, $CUSTOMIZABLES ) = @_; 
+    my $base_class  = $CUSTOMIZABLES->{$option} .'::Base';
+    my $engine_class = $CUSTOMIZABLES->{$option} .'::Default';
+    if ( exists $options->{ $option } and
+         exists $options->{ $option }->{ class } ) {
+        $engine_class = $CUSTOMIZABLES->{$option}
+            . '::' . $options->{ $option }->{ class };
+    }
+
+    #load base class interface
+    try {
+        $base_class = load_class( $base_class );
+    } catch {
+        warn "Could not load base_class: " . $base_class;
+    };
+#warn $base_class;
+
+    #load custom engine
+    try {
+        $engine_class = load_class( $engine_class );
+    } catch {
+        $engine_class = load_class( $options->{ $option }->{ class } );
+    };
+#warn $engine_class;
+#warn $option;
+    my $args = $options->{$option}->{args}||{};
+    warn $option;
+    warn p $args;
+    warn '-----------------------';
+    $options->{$option} = $base_class->new(
+        engine => $engine_class->new( $args ),
+        ( exists $options->{$option}->{args}->{is_active}) ?
+          ( is_active => $options->{$option}->{args}->{is_active} ) : (),
+    );
+}
+
+sub _load_reader {
+    my ( $options ) = @_; 
+    my $reader_class = load_class( $options->{ reader }->{ class } );
+    $options->{reader} = $reader_class->new( $options->{ reader }->{ args } || {} );
+}
+
+sub _load_writer {
+    my ( $options  ) = @_; 
+    my $writer_class = load_class( $options->{ writer }->{ class } );
+    $options->{writer} = $writer_class->new( $options->{ writer }->{ args } || {} );
+}
 
 =head2 before 'start'
     - give access to this class inside other custom classes
