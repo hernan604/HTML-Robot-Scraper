@@ -64,7 +64,7 @@ $robot->queue->append( search => 'http://www.url.com',{
             content => '',
         }
     ]
-} ); #Aluguel
+} );
 =cut
 
 sub visit {
@@ -77,7 +77,7 @@ sub visit {
         if ( ! $res ) {
             $res = $self->_visit( $robot, $item );
             $robot->cache->set( $sha1_key, $res );
-            $self->parse_response( $robot, $res );
+            $self->parse_response( $robot, $res ); #todo: passar parametros melhor. ex: 10minutos pro cache..
             return $res;
         } else {
             $self->parse_response( $robot, $res );
@@ -106,18 +106,19 @@ sub _visit {
     return $res;
 }
 
+
 sub parse_response {
     my ( $self, $robot, $res ) = @_; 
     my $headers = $res->{ headers };
-    $self->content(
-        $robot->encoding->safe_encode( $headers , $res->{ content } )
-    );
+    $self->content( $res->{ content } );
     $self->parse_content( $robot, $res );
 }
 
 sub parse_content {
     my ( $self, $robot, $res ) = @_;
     my $content_types_avail = $robot->parser->content_types;
+    #set headers
+    $self->headers( $res->{ headers } );
     #content type
     my $content_type =$res->{headers}->{'content-type'};
     $self->content_type( $content_type );

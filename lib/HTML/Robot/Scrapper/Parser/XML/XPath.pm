@@ -16,6 +16,7 @@ see HTML::Robot::Scrapper::Parser::Default
 
 sub parse_xml {
     my ($self, $robot, $content ) = @_;
+    $content = $robot->encoding->safe_encode( $robot->useragent->headers , $content );
     my $xml = XML::XPath->new( xml => $content );
     $self->xml( $xml );
 }

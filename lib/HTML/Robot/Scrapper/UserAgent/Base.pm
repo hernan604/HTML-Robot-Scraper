@@ -9,11 +9,20 @@ sub normalize_url {
     return $self->engine->normalize_url( $self->robot, $url );
 }
 
+before 'visit' => sub {
+    my ( $self ) = @_; 
+    $self->robot->benchmark->method_start('visit');
+};
+
 sub visit {
     my ( $self, $item ) = @_;
     return $self->engine->visit( $self->robot , $item );
 };
 
+after 'visit' => sub {
+    my ( $self ) = @_; 
+    $self->robot->benchmark->method_finish('visit');
+};
 
 sub headers {
     my ( $self, $headers ) = @_;

@@ -183,7 +183,12 @@ before 'start' => sub {
 sub start {
     my ( $self ) = @_;
     $self->reader->on_start( $self );
+    my $counter = 0;
     while ( my $item = $self->queue->queue_get_item ) {
+        $self->benchmark->method_start('finish_in');
+
+        warn '--[ '.$counter++.' ]------------------------------------------------------------------------------';
+        warn ' url: '. $item->{ url } if exists $item->{ url };
         my $method = $item->{ method };
         my $res = $self->useragent->visit($item);
 
@@ -200,7 +205,12 @@ sub start {
         #TODO: set the cookies in $self->reader->cookies
         # that way its possible to use and update 1 same cookie
 
+        
+        $self->benchmark->method_start( $method );
         $self->reader->$method( );
+        $self->benchmark->method_finish( $method );
+
+        $self->benchmark->method_finish('finish_in', 'Total: ' );
     }
     $self->reader->on_finish( );
 }

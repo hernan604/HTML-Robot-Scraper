@@ -4,13 +4,22 @@
 
 use Test::More;
 use HTML::Robot::Scrapper;
+use File::Path qw|make_path remove_tree|;
 use CHI;
+use Cwd;
+use Path::Class;
 BEGIN { use_ok( 'HTML::Robot::Scrapper', 'use is fine' ); }
-warn `pwd`;
+
+sub create_cache_dir {
+  my $dir  = dir(getcwd(), 'cache'); 
+  make_path( $dir, 'cache' );
+}
+&create_cache_dir;
+
 my $robot = HTML::Robot::Scrapper->new (
     reader    => {                                                       # REQ
-        class => 'HTML::Robot::Scrapper::Reader::TestReader',
-#       class => 'HTML::Robot::Scrapper::Reader::Lopes',
+#       class => 'HTML::Robot::Scrapper::Reader::TestReader',
+        class => 'HTML::Robot::Scrapper::Reader::Lopes',
 #       args  => { #will be passed to ->new(here) in class^^
 #         argument1 => 'xx'
 #       },
@@ -20,8 +29,8 @@ my $robot = HTML::Robot::Scrapper->new (
     cache     => {
         class => 'Default',
         args  => {
-            is_active => 1,
-            cache => CHI->new(
+            is_active => 0,
+            engine => CHI->new(
                     driver => 'BerkeleyDB',
                     root_dir => "/home/catalyst/HTML-Robot-Scraper/cache/",
             ),

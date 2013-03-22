@@ -16,7 +16,8 @@ see HTML::Robot::Scrapper::Parser::Default
 =cut
 
 sub parse_xpath {
-    my ($self, $robot, $content ) = @_;
+    my ( $self, $robot, $content ) = @_;
+    $content =  $robot->encoding->safe_encode( $robot->useragent->headers , $content );
     my $tree_xpath = HTML::TreeBuilder::XPath->new;
     $self->tree->delete
       if ( defined $self->tree

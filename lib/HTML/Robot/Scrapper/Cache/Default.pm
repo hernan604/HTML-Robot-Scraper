@@ -1,7 +1,7 @@
 package HTML::Robot::Scrapper::Cache::Default;
 use Moo;
 
-has cache => (
+has engine => (
     is      => 'rw',
 );
 
@@ -13,19 +13,19 @@ has is_active => (
 sub get {
 #    my ( $self, $key, $options ) = @_;
     my ( $self ) = shift;
-    return $self->cache->get( @_ );
+    return $self->engine->get( @_ );
 }
 
 sub set {
     my ( $self,  ) = shift;
 #   my ( $self, $key, $data, $options  ) = @_;
-    $self->cache->set( @_ );
+    $self->engine->set( @_ );
 }
 
 sub remove {
 #   my ( $self, $key ) = @_;
     my ( $self ) = shift;
-    $self->cache->remove( @_ );
+    $self->engine->remove( @_ );
 }
 
 sub expire {

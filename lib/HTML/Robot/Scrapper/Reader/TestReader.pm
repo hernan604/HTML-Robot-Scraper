@@ -26,13 +26,16 @@ sub search {
     my $title = $self->robot->parser->engine->tree->findvalue( '//title' );
 #   my $title = $self->robot->parser->engine->tree->findnodes( '//title' );
 #   warn p $self->robot->parser->engine->tree;
+    warn p $self->robot->writer;
+    warn p $self->robot->writer;
     warn $title;
     warn $title;
     warn $title;
     warn $self->current_page;
-#   $self->writer->url( $self->robot->instance->current_page );
+    $self->robot->writer->url( $self->current_page );
+    $self->robot->writer->title( $title );
 #   $self->writer->html( sha1_hex($self->html_content) );
-#   $self->writer->save();
+    $self->robot->writer->save_data();
 #   my $news = $self->tree->findnodes( '//div[@class="detalhes"]/h1/a' );
 #   foreach my $item ( $news->get_nodelist ) {
 #        my $url = $item->attr( 'href' );
