@@ -207,7 +207,9 @@ sub start {
 
         
         $self->benchmark->method_start( $method );
-        $self->reader->$method( );
+        try {
+          $self->reader->$method( );
+        } catch {};
         $self->benchmark->method_finish( $method );
 
         $self->benchmark->method_finish('finish_in', 'Total: ' );
