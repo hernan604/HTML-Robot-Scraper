@@ -29,6 +29,16 @@ sub headers {
     return $self->engine->_headers( $self->robot, $headers );
 }
 
+sub request_headers {
+    my ( $self, $headers ) = @_;
+    return $self->engine->_request_headers( $self->robot, $headers );
+}
+
+sub response_headers {
+    my ( $self, $headers ) = @_;
+    return $self->engine->_response_headers( $self->robot, $headers );
+}
+
 sub content {
     my ( $self, $content ) = @_;
     return $self->engine->_content( $self->robot, $content );

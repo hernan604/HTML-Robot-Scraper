@@ -31,8 +31,8 @@ has url_visited => (
 ### 'Something from page one that should be used on another page' }
 sub append {
     my ( $self, $robot, $method, $url, $args ) = @_;
-    if ( !exists $self->url_visited->{$url}
-        and !exists $self->url_list_hash->{$url} )
+    if ( (   !exists $self->url_visited->{$url}
+         and !exists $self->url_list_hash->{$url} ) or exists $args->{request} )
     {
         $args = {} if ! defined $args;
         #inserts stuff into @{ $robot->url_list } which is handled by 'visit'
@@ -62,8 +62,8 @@ sub append {
 ### 'Something from page one that should be used on another page' }
 sub prepend {
     my ( $self, $robot, $method, $url, $args ) = @_;
-    if ( !exists $self->url_visited->{$url}
-        and !exists $self->url_list_hash->{$url} )
+    if ( ( !exists $self->url_visited->{$url}
+       and !exists $self->url_list_hash->{$url} ) or exists $args->{request} )
     {
         $args = {} if ! defined $args;
         #inserts stuff into @{ $robot->url_list } which is handled by 'visit'
