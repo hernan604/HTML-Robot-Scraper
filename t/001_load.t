@@ -18,8 +18,8 @@ sub create_cache_dir {
 
 my $robot = HTML::Robot::Scrapper->new (
     reader    => {                                                       # REQ
-#       class => 'HTML::Robot::Scrapper::Reader::TestReader',
-        class => 'HTML::Robot::Scrapper::Reader::Lopes',
+        class => 'HTML::Robot::Scrapper::Reader::TestReader',
+#       class => 'HTML::Robot::Scrapper::Reader::Lopes',
 #       args  => { #will be passed to ->new(here) in class^^
 #         argument1 => 'xx'
 #       },
