@@ -1,11 +1,9 @@
 package HTML::Robot::Scrapper::Writer::TestWriter;
 use Moo;
+use v5.10;
 
 my $FIELDS = {
-    title => {
-        is => 'rw',
-    },
-    url   => {
+    data_to_save => { ##use anything
         is => 'rw',
     },
 };
@@ -15,16 +13,9 @@ foreach my $f ( keys $FIELDS ) {
 }
 
 sub save_data {
-    my ( $self ) = @_; 
-    warn "=====================================================================";
-    warn "method save_data from class HTML::Robot::Scrapper::Writer::TestWriter";
-    foreach my $f ( keys $FIELDS ) {
-        warn $f;
-        warn $self->$f;
-        warn "-----";
-    }
-    warn "save data";
-    warn "save data";
+    my ( $self, $data ) = @_; 
+    $self->data_to_save( $data );
+    say "Data saved...into memory!";
 }
 
 1;

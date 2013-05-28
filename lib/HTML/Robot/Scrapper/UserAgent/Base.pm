@@ -54,9 +54,9 @@ sub charset {
     return $self->engine->_charset( $self->robot, $charset );
 }
 
-sub current_page { #TODO> totrar para current_url ou url
+sub url { 
     my ( $self, $url ) = @_;
-    return $self->engine->_current_page( $self->robot, $url );
+    return $self->engine->_url( $self->robot, $url );
 }
 
 1;

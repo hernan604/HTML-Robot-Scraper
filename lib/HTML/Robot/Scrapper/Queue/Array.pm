@@ -2,6 +2,7 @@ package HTML::Robot::Scrapper::Queue::Array;
 use Moo;
 use URI;
 use Data::Printer;
+use v5.10;
 
 has url_list => (
     is      => 'rw',
@@ -48,7 +49,7 @@ sub append {
             $url_args
         );
         $self->url_list_hash->{$url} = 1;
-        warn "APPENDED '$method' : '$url' ";
+        say "APPENDED '$method' : '$url' ";
     }
 }
 
@@ -79,7 +80,7 @@ sub prepend {
             $url_args
         );
         $self->url_list_hash->{$url} = 1;
-        warn "PREPENDED '$method' : '$url' ";
+        say "PREPENDED '$method' : '$url' ";
     }
 }
 

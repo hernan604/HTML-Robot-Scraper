@@ -4,12 +4,13 @@ use Data::Printer;
 use HTTP::Tiny;
 use HTTP::Headers::Util qw(split_header_words);
 use Digest::SHA1  qw(sha1 sha1_hex sha1_base64);
+use v5.10;
 
 has [ qw/headers request_headers response_headers/ ] => ( is => 'rw' );
 has content => ( is => 'rw' );
 has content_type => ( is => 'rw', );
 has charset => ( is => 'rw', );
-has current_page => ( is => 'rw', );
+has url => ( is => 'rw', );
 has ua => ( is => 'rw', default => sub { HTTP::Tiny->new() } );
 
 sub _headers {
@@ -48,10 +49,10 @@ sub _charset {
     return $self->charset;
 }
 
-sub _current_page {
+sub _url {
     my ( $self, $robot, $url ) = @_;
-    $self->current_page( $url ) if defined $url;
-    return $self->current_page;
+    $self->url( $url ) if defined $url;
+    return $self->url;
 }
 
 #visit the url and load into xpath and redirects to the method
@@ -109,10 +110,12 @@ sub _visit {
             ref $item->{ request } eq ref [] )
     {
         $res = $self->ua->request( @{ $item->{ request } } );
+        $self->url( $item->{ request }[1] );
     }
     else
     {
         $res = $self->ua->get( $item->{ url } );
+        $self->url( $item->{ url } );
     }
     $self->parse_response( $robot, $res );
     return $res;
@@ -149,7 +152,7 @@ sub parse_content {
             $content_type_found = 1;
         }
     }
-    warn "**** Content type not set for: " . $content_type . '... please configure it correctly adding a parser for that content type' if !$content_type_found;
+    say "**** Content type not set for: " . $content_type . '... please configure it correctly adding a parser for that content type' if !$content_type_found;
 #   foreach my $ct ( keys $self->parser_content_type ) {
 #       if ( $self->response->{ headers }->{'content-type'} =~ m|^$ct|g ) {
 #           my $parser_method = $self->parser_methods->{ $self->parser_content_type->{ $ct } };
@@ -180,8 +183,8 @@ sub normalize_url {
 #       $url = $self->before_normalize_url->{code}->( $url );
 #   }
     if ( defined $url ) {
-        $self->current_page( $url ) if ! defined $self->current_page;
-        my     $final_url = URI->new_abs( $url , $self->current_page );
+        $self->url( $url ) if ! defined $self->url;
+        my     $final_url = URI->new_abs( $url , $self->url );
         return $final_url->as_string();
     }
 }
