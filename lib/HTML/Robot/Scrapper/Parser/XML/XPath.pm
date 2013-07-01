@@ -1,5 +1,5 @@
 package HTML::Robot::Scrapper::Parser::XML::XPath;
-use Moo::Role;
+use Moose::Role;
 use XML::XPath;
 
 has xml => (

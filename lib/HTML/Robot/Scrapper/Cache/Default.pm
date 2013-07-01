@@ -1,5 +1,5 @@
 package HTML::Robot::Scrapper::Cache::Default;
-use Moo;
+use Moose;
 
 has engine => (
     is      => 'rw',

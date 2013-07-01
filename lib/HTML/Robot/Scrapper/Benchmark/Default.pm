@@ -1,8 +1,23 @@
 package HTML::Robot::Scrapper::Benchmark::Default;
-use Moo;
+use Moose;
 use DateTime;
 use Data::Printer;
 use Time::HiRes qw(gettimeofday tv_interval);
+
+=head2 DESCRIPTION
+
+The Benchmark class should provide complete subrouting stats with 
+
+- subroutine stack tree
+
+- subrouting timings and totals
+
+- print in catalyst style
+
+* Its not implemented yet.. help is welcome
+
+
+=cut
 
 has 'values' => ( is => 'rw' );
 

@@ -1,5 +1,5 @@
 package HTML::Robot::Scrapper::Encoding::Base;
-use Moo;
+use Moose;
 use Data::Printer;
 use Carp;
 

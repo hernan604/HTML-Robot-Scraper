@@ -1,4 +1,4 @@
 package HTML::Robot::Scrapper::Instance::Default;
-use Moo;
+use Moose;
 
 1;

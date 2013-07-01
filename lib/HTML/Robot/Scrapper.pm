@@ -1,12 +1,11 @@
 package HTML::Robot::Scrapper;
-use Moo;
+use Moose;
 use Class::Load ':all';
 use Data::Dumper;
 use Data::Printer;
 use Try::Tiny;
-use v5.10;
 
-our $VERSION     = '0.01';
+our $VERSION     = '0.08';
 
 my $CUSTOMIZABLES = {
 #   reader      => 'HTML::Robot::Scrapper::Reader',
@@ -18,7 +17,6 @@ my $CUSTOMIZABLES = {
     queue       => 'HTML::Robot::Scrapper::Queue',
     useragent   => 'HTML::Robot::Scrapper::UserAgent',
     encoding    => 'HTML::Robot::Scrapper::Encoding',
-    instance    => 'HTML::Robot::Scrapper::Instance',
 };
 
 =head1 ATTRIBUTES
@@ -75,34 +73,26 @@ has encoding => (
     is      => 'rw',
 );
 
-=head2 instance
-=cut
-has instance => (
-    is      => 'rw',
-);
-
-
-
 =head2 new
 
-HTML::Robot::Scrapper->new({
-    reader      => {class   => 'HTML::Robot::Scrapper::Reader::TestReader',
-                    args    => {},                  },# or [] or any object
-    writer      => {class   => 'HTML::Robot::Scrapper::Writer::TestWriter',
-                    args    => {},                                       },
-    benchmark   => {class   => 'Base',
-                    args    => {},                                       },
-    cache       => {class   => 'Base',
-                    args    => {},                                       },
-    log         => {class   => 'Base',
-                    args    => {},                                       },
-    parser      => {class   => 'Base',
-                    args    => {},                                       },
-    queue       => {class   => 'Base',
-                    args    => {},                                       },
-    useragent   => {class   => 'Base',
-                    args    => {},                                       },
-});
+    HTML::Robot::Scrapper->new({
+        reader      => {class   => 'HTML::Robot::Scrapper::Reader::TestReader',
+                        args    => {},                  },# or [] or any object
+        writer      => {class   => 'HTML::Robot::Scrapper::Writer::TestWriter',
+                        args    => {},                                       },
+        benchmark   => {class   => 'Base',
+                        args    => {},                                       },
+        cache       => {class   => 'Base',
+                        args    => {},                                       },
+        log         => {class   => 'Base',
+                        args    => {},                                       },
+        parser      => {class   => 'Base',
+                        args    => {},                                       },
+        queue       => {class   => 'Base',
+                        args    => {},                                       },
+        useragent   => {class   => 'Base',
+                        args    => {},                                       },
+    });
 
 =cut
 
@@ -110,7 +100,7 @@ sub BUILDARGS {
     my ( $class, @args ) = @_;
     my $options = {@args};
 
-    foreach my $option ( keys $CUSTOMIZABLES ) {
+    foreach my $option ( sort keys %$CUSTOMIZABLES ) {
         &_load_custom_class( $options, $option, $CUSTOMIZABLES );
     }
     &_load_reader( $options );
@@ -121,7 +111,7 @@ sub BUILDARGS {
 
 sub _load_custom_class {
     my ( $options, $option, $CUSTOMIZABLES ) = @_; 
-    my $base_class  = $CUSTOMIZABLES->{$option} .'::Base';
+    my $base_class   = $CUSTOMIZABLES->{$option} .'::Base';
     my $engine_class = $CUSTOMIZABLES->{$option} .'::Default';
     if ( exists $options->{ $option } and
          exists $options->{ $option }->{ class } ) {
@@ -133,22 +123,23 @@ sub _load_custom_class {
     try {
         $base_class = load_class( $base_class );
     } catch {
-        say "Could not load base_class: " . $base_class;
+        print "Could not load base_class: " . $base_class . "\n";
     };
-#say $base_class;
 
     #load custom engine
     try {
         $engine_class = load_class( $engine_class );
     } catch {
-        $engine_class = load_class( $options->{ $option }->{ class } );
+        warn "ERROR/WARNING Could not load class $engine_class. error: $_";
+        warn "Trying to load:" . $options->{ $option }->{ class };
+        try {
+            $engine_class = load_class( $options->{ $option }->{ class } );
+            return 1;
+        } catch {
+            warn "Fatal error: Could not load class $engine_class. error: $_";
+        };
     };
-#say $engine_class;
-#say $option;
     my $args = $options->{$option}->{args}||{};
-    say $option;
-    say p $args;
-    say '-----------------------';
     $options->{$option} = $base_class->new(
         engine => $engine_class->new( $args ),
         ( exists $options->{$option}->{args}->{is_active}) ?
@@ -169,12 +160,14 @@ sub _load_writer {
 }
 
 =head2 before 'start'
+
     - give access to this class inside other custom classes
+
 =cut
 
 before 'start' => sub {
     my ( $self ) = @_;
-    foreach my $k ( keys $CUSTOMIZABLES ) {
+    foreach my $k ( keys %$CUSTOMIZABLES ) {
         #give access to this class inside other classes
         $self->$k->robot( $self );
     }
@@ -188,8 +181,8 @@ sub start {
     while ( my $item = $self->queue->queue_get_item ) {
         $self->benchmark->method_start('finish_in');
 
-        say '--[ '.$counter++.' ]------------------------------------------------------------------------------';
-        say ' url: '. $item->{ url } if exists $item->{ url };
+        print '--[ '.$counter++.' ]------------------------------------------------------------------------------'."\n";
+        print ' url: '. $item->{ url }."\n" if exists $item->{ url };
         my $method = $item->{ method };
         my $res = $self->useragent->visit($item);
 
@@ -210,7 +203,9 @@ sub start {
         $self->benchmark->method_start( $method );
         try {
           $self->reader->$method( );
-        } catch {};
+        } catch {
+          warn "ERROR on reader->$method: $_";
+        };
         $self->benchmark->method_finish( $method );
 
         $self->benchmark->method_finish('finish_in', 'Total: ' );
@@ -224,8 +219,32 @@ HTML::Robot::Scrapper - Your robot to parse webpages
 
 =head1 SYNOPSIS
 
+See a working example under the module: WWW::Tabela::Fipe ( search on cpan ). 
+
+The class
+
+    HTML::Robot::Scrapper::Parser::Default
+
+handles only text/html and text/xml by default
+
+So i need to add an extra option for text/plain and tell it to use 
+
+the same method that already parses text/html, here is an example:
+
+* im using the code from the original as base class for this: 
+
+    HTML::Robot::Scrapper::Parser::Default
+
+Here i will redefine that class and tell my $robot to favor it
+
+    ...
+    parser => {class => 'WWW::Tabela::Fipe::Parser'},
+    ...
+
+See below:
+
     package WWW::Tabela::Fipe::Parser;
-    use Moo;
+    use Moose;
 
     with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath');
     with('HTML::Robot::Scrapper::Parser::XML::XPath');
@@ -237,19 +256,25 @@ HTML::Robot::Scrapper - Your robot to parse webpages
                 {
                     parse_method => 'parse_xpath',
                     description => q{
-    The method above 'parse_xpath' is inside class:
-    HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
-    },
+                      The method above 'parse_xpath' is inside class:
+                      HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
+                      
+                      These content type related methods will be called inside:
+                        HTML::Robot::Scrapper::UserAgent::Default around:
+                          $robot->parser->engine->$parse_method( $robot, $self->content )
+
+                    },
                 }
             ],
             'text/plain' => [
                 {
                     parse_method => 'parse_xpath',
                     description => q{
-    esse site da fipe responde em text/plain e eu preciso parsear esse content type.
-    por isso criei esta classe e passei ela como parametro, sobreescrevendo a classe
-    HTML::Robot::Scrapper::Parser::Default
-    },
+                        Here i define which prase_method will treat the page content. 
+                        Based on content type for that page. I tell it to use the 
+                        same method its using to parse html... because i know in this
+                        case text/plain should be text/html instead.
+                      },
                 }
             ],
             'text/xml' => [
@@ -263,6 +288,8 @@ HTML::Robot::Scrapper - Your robot to parse webpages
     1;
 
     package FIPE;
+
+
 
     use HTML::Robot::Scrapper;
     #   use CHI;
@@ -295,14 +322,70 @@ HTML::Robot::Scrapper - Your robot to parse webpages
             }
         },
         encoding => {class => 'Default'},
-        instance => {class => 'Default'},
     );
 
     $robot->start();
 
 =head1 DESCRIPTION
 
-This cralwer has been created to be extensible.
+This cralwer has been created to be extensible. Scalable with redis queue.
+
+The main idea is: i need a queue of urls to be crawled, it can be an array living during 
+
+my instance (not scalable)... or it can be a Redis queue ( scallable ), being acessed by 
+
+many HTML::Robot::Scrapper instances.
+
+Each request inserted into the queue is suposed to be independent. So this thing can scale. I mean,
+
+Supose i need to create an object using stuff from page1, page2 and page3... that will be 3 requests
+
+so, the first request will access page1 and collect data into $colleted_data, then, i will append another
+
+request for page2 with $collected_data from page 1. So the request for page2 will collect some more data 
+
+and merge with $collected_data from page1 generating $collected_data_from_page1_and_page2, and then i will insert
+
+a new request into my queue for page3 that will collect data and merge with $collected_data_from_page1_and_page2
+
+and create the final object: $collected_data_complete. 
+
+
+Basicly, you need to create a 
+
+    - reader: to read/parse your webpages and 
+
+and a
+        
+    - writer: to save data you reader collected.
+
+You 'might' need to add other content types also, creating your custom class based on:
+
+    HTML::Robot::Scrapper::Parser::Default
+
+See it and you will understand.. by default it handles: 
+    
+    - text/html
+    - text/xml
+
+=head1 READER ( you create this )
+
+Reader: Its where the parsing logic for a specific site lives.
+
+You customize the reader telling it where the nodes are, etc..
+
+The reader class is where you create your parser.
+
+=head2 WRITER ( you create this )
+
+Writer: Its the class that will save the data the reader collects.
+
+ie: You can create a method "save" that receives an object and simply writes into your DB.
+
+Or you can make it write into DB + elastic search .. etc.. whatever you want
+
+
+=head1 CONTENT TYPES AND PARSING METHODS ( you might need to extend this )
 
 For example, after making a request call ( HTML::Robot::Scrapper::UserAgent::Default ) 
 
@@ -311,7 +394,7 @@ it will need to parse data.. and will use the response content type to parse tha
 by default the class that handles that is: 
 
     package HTML::Robot::Scrapper::Parser::Default;
-    use Moo;
+    use Moose;
 
     with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath'); #gives parse_xpath
     with('HTML::Robot::Scrapper::Parser::XML::XPath'); #gives parse_xml
@@ -323,9 +406,9 @@ by default the class that handles that is:
                 {
                     parse_method => 'parse_xpath',
                     description => q{
-    The method above 'parse_xpath' is inside class:
-    HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
-    },
+                        The method above 'parse_xpath' is inside class:
+                        HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
+                    },
                 }
             ],
             'text/xml' => [
@@ -337,6 +420,12 @@ by default the class that handles that is:
     }
 
     1;
+
+WWW::Tabela::FIPE has a custom Parser class and you can see it as an example. 
+
+If you need to download images, you will need to create a custom parser class adding 'image/png' as content type for example.
+
+=head1 QUEUE OF REQUESTS
 
 Another example is the Queue system, it has an api: HTML::Robot::Scrapper::Queue::Base and by default
 
@@ -354,7 +443,7 @@ By default it uses HTTP Tiny and useragent related stuff is in:
 
     HTML::Robot::Scrapper::UserAgent::Default
 
-=head1 Project Statys
+=head1 Project Status
 
 The crawling works as expected, and works great. And the api will not change probably.
 
@@ -373,7 +462,7 @@ Better tests and docs.
 On this first example, it shows how to make a simple crawler... by simple i mean simple GET requests following urls... and grabbing some data.
 
     package HTML::Robot::Scrapper::Reader::TestReader;
-    use Moo;
+    use Moose;
     with 'HTML::Robot::Scrapper::Reader';
     use Data::Printer;
     use Digest::SHA qw(sha1_hex);
@@ -428,16 +517,16 @@ On this first example, it shows how to make a simple crawler... by simple i mean
 
     1;
 
-=head2 Example 2 - Tabela FIPE ( append custom request calls )
+=head1 Example 2 - Tabela FIPE ( append custom request calls )
 
 See the working version at: https://github.com/hernan604/WWW-Tabela-Fipe
 
-This example show an asp website that has those '__EVENTVALIDATION' and '__VIEWSTATE' which must be sent back again on each request... here is the example of such a website...
+This example show an asp website that has those '__EVENTVALIDATION' and '__VIEWSTATE' which must be sent back again on each request... here is the example of such crawler for such website...
 
 This example also demonstrates how one could easily login into a website and crawl it also.
 
     package WWW::Tabela::Fipe;
-    use Moo;
+    use Moose;
     with 'HTML::Robot::Scrapper::Reader';
     use Data::Printer;
     use utf8;

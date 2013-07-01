@@ -1,5 +1,5 @@
 package  HTML::Robot::Scrapper::Queue::Base;
-use Moo;
+use Moose;
 use Data::Printer;
 
 has robot => ( is => 'rw', );

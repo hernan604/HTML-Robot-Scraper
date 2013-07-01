@@ -1,5 +1,5 @@
 package HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath;
-use Moo::Role;
+use Moose::Role;
 use HTML::TreeBuilder::XPath;
 use Data::Printer;
 

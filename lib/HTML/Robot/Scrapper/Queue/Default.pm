@@ -1,4 +1,4 @@
 package HTML::Robot::Scrapper::Queue::Default;
-use Moo;
+use Moose;
 extends 'HTML::Robot::Scrapper::Queue::Array';
 1;

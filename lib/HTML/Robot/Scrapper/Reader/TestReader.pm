@@ -1,5 +1,5 @@
 package HTML::Robot::Scrapper::Reader::TestReader;
-use Moo;
+use Moose;
 with 'HTML::Robot::Scrapper::Reader';
 use Data::Printer;
 use Digest::SHA qw(sha1_hex);

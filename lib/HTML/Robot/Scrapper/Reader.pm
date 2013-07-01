@@ -1,5 +1,5 @@
 package HTML::Robot::Scrapper::Reader;
-use Moo::Role;
+use Moose::Role;
 
 =head1 SYNOPSIS
 

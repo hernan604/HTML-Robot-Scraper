@@ -1,5 +1,5 @@
 package  HTML::Robot::Scrapper::Parser::Default;
-use Moo;
+use Moose;
 
 with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath'); #gives parse_xpath
 with('HTML::Robot::Scrapper::Parser::XML::XPath'); #gives parse_xml

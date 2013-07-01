@@ -1,5 +1,5 @@
 package HTML::Robot::Scrapper::Benchmark::Base;
-use Moo;
+use Moose;
 use Data::Printer;
 #TODO: add proper stacktrace 
 #or some structure ie: This way its possible to iterate over the structure and get overall time for each method call

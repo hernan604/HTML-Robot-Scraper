@@ -1,5 +1,5 @@
 package  HTML::Robot::Scrapper::UserAgent::Base;
-use Moo;
+use Moose;
 
 has robot => ( is => 'rw', );
 has engine => ( is => 'rw', );
