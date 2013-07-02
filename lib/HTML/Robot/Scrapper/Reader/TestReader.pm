@@ -30,7 +30,7 @@ sub search {
     warn $title;
     warn p $self->robot->useragent->url ;
 #   warn p $self->robot->parser->engine->tree;
-#   warn p $self->robot->writer;
+    warn p $self->robot;
 #   warn $self->url;
 #   $self->robot->writer->url( $self->url );
 #   $self->robot->writer->title( $title );

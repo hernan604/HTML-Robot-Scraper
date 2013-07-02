@@ -101,7 +101,9 @@ sub BUILDARGS {
     my $options = {@args};
 
     foreach my $option ( sort keys %$CUSTOMIZABLES ) {
+        warn "LOADING... $option";
         &_load_custom_class( $options, $option, $CUSTOMIZABLES );
+        warn "LOADED $option";
     }
     &_load_reader( $options );
     &_load_writer( $options );

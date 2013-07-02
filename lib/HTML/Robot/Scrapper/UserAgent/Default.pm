@@ -105,6 +105,7 @@ sub visit {
     if ( $robot->cache->is_active ) {
         my $sha1 = Digest::SHA1->new;
         $sha1->add( $item->{ url } );
+        $robot->queue->add_visited( $item->{ url } );
         my $sha1_key = $sha1->hexdigest;
         my $res = $robot->cache->get( $sha1_key );
         if ( ! $res ) {

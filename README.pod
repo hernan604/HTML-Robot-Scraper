@@ -80,77 +80,10 @@ HTML::Robot::Scrapper - Your robot to parse webpages
 
     $robot->start();
 
-=head1 DESCRIPTION
+=head1 Reader Example 1 - Append some urls and extract some data
 
-This cralwer has been created to be extensible.
-
-For example, after making a request call ( HTML::Robot::Scrapper::UserAgent::Default ) 
-
-it will need to parse data.. and will use the response content type to parse that data
-
-by default the class that handles that is: 
-
-    package HTML::Robot::Scrapper::Parser::Default;
-    use Moose;
-
-    with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath'); #gives parse_xpath
-    with('HTML::Robot::Scrapper::Parser::XML::XPath'); #gives parse_xml
-
-    sub content_types {
-        my ( $self ) = @_;
-        return {
-            'text/html' => [
-                {
-                    parse_method => 'parse_xpath',
-                    description => q{
-    The method above 'parse_xpath' is inside class:
-    HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
-    },
-                }
-            ],
-            'text/xml' => [
-                {
-                    parse_method => 'parse_xml'
-                },
-            ],
-        };
-    }
-
-    1;
-
-Another example is the Queue system, it has an api: HTML::Robot::Scrapper::Queue::Base and by default
-
-uses: HTML::Robot::Scrapper::Queue::Array which works fine for 1 local instance. However, lets say i want a REDIS queue, so i could
-
-implement HTML::Robot::Scrapper::Queue::Redis and make the crawler access a remote queue.. this way i can share a queue between many crawlers independently.
-
-Just so you guys know, i have a redis module almost ready, it needs litle refactoring because its from another personal project. It will be released asap when i got time.
-
-So, if that does not fit you, or you want something else to handle those content types, just create a new class and pass it on to the HTML::Robot::Scrapper constructor. ie:
-
-    see the SYNOPSIS
-
-By default it uses HTTP Tiny and useragent related stuff is in: 
-
-    HTML::Robot::Scrapper::UserAgent::Default
-
-=head1 Project Statys
-
-The crawling works as expected, and works great. And the api will not change probably.
-
-=head1 TODO
-
-Implement the REDIS Queue to give as option for the Array queue. Array queue runs local/per instance.. and the redis queue can be shared and accessed by multiple machines!
-
-Still need to implement the Log, proper Benchmark with subroutine tree and timing.
-
-Allow parameters to be passed in to UserAgent (HTTP::Tiny on this case)
-
-Better tests and docs.
-
-=head1 Example 1 - Append some urls and extract some data
-
-On this first example, it shows how to make a simple crawler... by simple i mean simple GET requests following urls... and grabbing some data.
+On this first example, it shows how to make a simple crawler... by simple i 
+mean simple GET requests following urls... and grabbing some data.
 
     package HTML::Robot::Scrapper::Reader::TestReader;
     use Moose;
@@ -208,7 +141,11 @@ On this first example, it shows how to make a simple crawler... by simple i mean
 
     1;
 
-=head2 Example 2 - Tabela FIPE ( append custom request calls )
+The html from each page collected can be read using: 
+
+    $self->robot->useragent->content
+
+=head2 Reader Example 2 - Tabela FIPE ( append custom request calls )
 
 See the working version at: https://github.com/hernan604/WWW-Tabela-Fipe
 
@@ -236,17 +173,17 @@ This example also demonstrates how one could easily login into a website and cra
     has startpage => (
         is => 'rw',
         default => sub {
-            return [
+            return [        #### 3 urls i will use when on_start is executed, and some description so i remember
               {
                 tipo => 'moto',
                 url => 'http://www.fipe.org.br/web/indices/veiculos/default.aspx?azxp=1&v=m&p=52'
               },
               {
-                tipo => 'carro',
+                tipo => 'cars',
                 url => 'http://www.fipe.org.br/web/indices/veiculos/default.aspx?p=51'
               },
               {
-                tipo => 'caminhao',
+                tipo => 'trucks',
                 url => 'http://www.fipe.org.br/web/indices/veiculos/default.aspx?v=c&p=53'
               },
             ]
@@ -256,8 +193,8 @@ This example also demonstrates how one could easily login into a website and cra
     sub on_start {
       my ( $self ) = @_;
       foreach my $item ( @{ $self->startpage } ) {
-        $self->append( search => $item->{ url }, {
-            passed_key_values => {
+        $self->append( search => $item->{ url }, {  ## Append this url into my queue
+            passed_key_values => {                  ## and also save these values for the next request
                 tipo => $item->{ tipo },
                 referer => $item->{ url },
             }
@@ -266,7 +203,7 @@ This example also demonstrates how one could easily login into a website and cra
     }
 
     sub _headers {
-        my ( $self , $url, $form ) = @_;
+        my ( $self , $url, $form ) = @_;    # standard headers will be needed
         return {
           'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Encoding' => 'gzip, deflate',
@@ -285,7 +222,7 @@ This example also demonstrates how one could easily login into a website and cra
     }
 
     sub _form {
-        my ( $self, $args ) = @_;
+        my ( $self, $args ) = @_;                # will need some forms too
         return [
           ScriptManager1 => $args->{ script_manager },
           __ASYNCPOST => 'true',
@@ -315,19 +252,20 @@ This example also demonstrates how one could easily login into a website and cra
             viewstate => $viewstate,
             marca => $marca->attr( 'value' ),
         } );
-        $self->prepend( busca_marca => 'url' , {
+        $self->prepend( busca_marca => 'url' #url here will not be considered because its a custom request and the url is described inside the custom request as follow
+        , {
           passed_key_values => {
               marca => $marca->as_text,
               marca_id => $marca->attr( 'value' ),
               tipo => $self->robot->reader->passed_key_values->{ tipo },
               referer => $self->robot->reader->passed_key_values->{referer },
           },
-          request => [
-            'POST',
-            $self->robot->reader->passed_key_values->{ referer },
+          request => [          ### Create a custom request for me similar to HTTP::Tiny
+            'POST',             # use POST
+            $self->robot->reader->passed_key_values->{ referer },  # this is the URL to be accessed
             {
-              headers => $self->_headers( $self->robot->reader->passed_key_values->{ referer } , $form ),
-              content => POST('url...', [], Content => $form)->content,
+              headers => $self->_headers( $self->robot->reader->passed_key_values->{ referer } , $form ), ## the custom headers
+              content => POST('url...', [], Content => $form)->content, # the custom content, my form
             }
           ]
         } );
@@ -438,6 +376,122 @@ This example also demonstrates how one could easily login into a website and cra
         warn "Terminou.... exportando dados.........";
         $self->robot->writer->write( $self->veiculos );
     }
+
+=head1 Writer Example - The writer is the output
+
+You must create a custom writer. ie. you create 1 custom writer thats
+saves a given json into a given filename. And then your crawlers for
+different domains can use this writer to save the data it collected.
+
+Here is a very simple writer, that i can access from my reader
+
+The writer class:
+
+    package My::Writer::Class;
+    use JSON::XS;
+    use File::Slurp;
+    use Moo;
+
+    sub write {
+        my ( $self, $something ) = @_; 
+        write_file( 'something.json', encode_json $something );
+    }
+
+    1;
+
+Inside the readers, you can access the writer class by:
+
+    $self->robot->writer->write( $self->collected_data );
+
+You customize it
+
+=head1 ACCESS TO OTHER CLASSES
+
+If needed you can access any class instance from within any class:
+
+Usually $self->robot has access to these:
+
+    public methods (12) : benchmark, BUILDARGS, cache, encoding, log, meta, parser, queue, reader, start, useragent, writer
+    private methods (3) : _load_custom_class, _load_reader, _load_writer
+    internals: {
+        benchmark   HTML::Robot::Scrapper::Benchmark::Base,
+        cache       HTML::Robot::Scrapper::Cache::Base,
+        encoding    HTML::Robot::Scrapper::Encoding::Base,
+        log         HTML::Robot::Scrapper::Log::Base,
+        parser      HTML::Robot::Scrapper::Parser::Base,
+        queue       HTML::Robot::Scrapper::Queue::Base,
+        reader      HTML::Robot::Scrapper::Reader::TestReader,
+        useragent   HTML::Robot::Scrapper::UserAgent::Base,
+        writer      HTML::Robot::Scrapper::Writer::TestWriter
+    }
+
+=head1 DESCRIPTION
+
+This cralwer has been created to be extensible.
+
+For example, after making a request call ( HTML::Robot::Scrapper::UserAgent::Default ) 
+
+it will need to parse data.. and will use the response content type to parse that data
+
+by default the class that handles that is: 
+
+    package HTML::Robot::Scrapper::Parser::Default;
+    use Moose;
+
+    with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath'); #gives parse_xpath
+    with('HTML::Robot::Scrapper::Parser::XML::XPath'); #gives parse_xml
+
+    sub content_types {
+        my ( $self ) = @_;
+        return {
+            'text/html' => [
+                {
+                    parse_method => 'parse_xpath',
+                    description => q{
+    The method above 'parse_xpath' is inside class:
+    HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
+    },
+                }
+            ],
+            'text/xml' => [
+                {
+                    parse_method => 'parse_xml'
+                },
+            ],
+        };
+    }
+
+    1;
+
+Another example is the Queue system, it has an api: HTML::Robot::Scrapper::Queue::Base and by default
+
+uses: HTML::Robot::Scrapper::Queue::Array which works fine for 1 local instance. However, lets say i want a REDIS queue, so i could
+
+implement HTML::Robot::Scrapper::Queue::Redis and make the crawler access a remote queue.. this way i can share a queue between many crawlers independently.
+
+Just so you guys know, i have a redis module almost ready, it needs litle refactoring because its from another personal project. It will be released asap when i got time.
+
+So, if that does not fit you, or you want something else to handle those content types, just create a new class and pass it on to the HTML::Robot::Scrapper constructor. ie:
+
+    see the SYNOPSIS
+
+By default it uses HTTP Tiny and useragent related stuff is in: 
+
+    HTML::Robot::Scrapper::UserAgent::Default
+
+=head1 Project Statys
+
+The crawling works as expected, and works great. And the api will not change probably.
+
+=head1 TODO
+
+Implement the REDIS Queue to give as option for the Array queue. Array queue runs local/per instance.. and the redis queue can be shared and accessed by multiple machines!
+
+Still need to implement the Log, proper Benchmark with subroutine tree and timing.
+
+Allow parameters to be passed in to UserAgent (HTTP::Tiny on this case)
+
+Better tests and docs.
 
 =head1 DESCRIPTION
 

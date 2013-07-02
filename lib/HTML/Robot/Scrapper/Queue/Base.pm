@@ -42,5 +42,10 @@ sub prepend {
     );
 }
 
+sub add_visited {
+    my ( $self, $url ) = @_; 
+    $self->engine->add_visited( $self->robot, $url );
+}
+
 
 1;
