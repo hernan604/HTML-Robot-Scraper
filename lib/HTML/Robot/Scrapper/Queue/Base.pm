@@ -2,8 +2,8 @@ package  HTML::Robot::Scrapper::Queue::Base;
 use Moose;
 use Data::Printer;
 
-has robot => ( is => 'rw', );
-has engine => ( is => 'rw', );
+has robot   => ( is => 'rw', );
+has engine  => ( is => 'rw', );
 
 ## API METHODS
 # The engines must implement these methods

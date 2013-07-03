@@ -21,8 +21,12 @@ my $robot = HTML::Robot::Scrapper->new (
 #         argument1 => 'xx'
 #       },
     },
-    writer    => {class => 'HTML::Robot::Scrapper::Writer::TestWriter',}, #REQ
-    benchmark => {class => 'Default'},
+    writer    => {
+        class => 'HTML::Robot::Scrapper::Writer::TestWriter',
+    }, #REQ
+    benchmark => {
+        class => 'Default'
+    },
     cache     => {
         class => 'Default',
         args  => {
@@ -33,12 +37,25 @@ my $robot = HTML::Robot::Scrapper->new (
 #           ),
         },
     },
-    log       => {class => 'Default'},
-    parser    => {class => 'Default'},
-    queue     => {class => 'Default'},
-    useragent => {class => 'Default'},
-    encoding  => {class => 'Default'},
-    instance  => {class => 'Default'},
+    log       => {
+        base_class => 'HTML::Robot::Scrapper::Log::Base', # your custom base class
+        class => 'Default'
+    },
+    parser    => {
+        class => 'Default'
+    },
+    queue     => {
+        class => 'Default'
+    },
+    useragent => {
+        class => 'Default'
+    },
+    encoding  => {
+        class => 'Default'
+    },
+    instance  => {
+        class => 'Default'
+    },
 );
 isa_ok ($robot, 'HTML::Robot::Scrapper', 'is obj scrapper');
 

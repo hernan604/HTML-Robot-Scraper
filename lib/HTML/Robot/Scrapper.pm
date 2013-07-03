@@ -24,38 +24,100 @@ my $CUSTOMIZABLES = {
 =cut
 
 =head2 reader
+
+this attribute access your reader class instance
+
 =cut
 has reader => (
     is      => 'rw',
 );
 
 =head2 writer
+
+this attribute accesses your writer class instance
+
 =cut
 has  writer => (
     is      => 'rw',
 );
 
 =head2 benchmark
+
+not ready, i want a catalyst type of method tree like debug for each method for each request
+
 =cut
 has benchmark => (
     is      => 'rw',
 );
 =head2 chache
+
+the cache works, with CHI however its only useful right now for GET requests for specific urls. 
+using the cache you will not need to download the page each time, so its good for dev
+
 =cut
 has cache => (
     is      => 'rw',
 );
 =head2 log
+
+the log is not ready yet however it will be log4perl
+
 =cut
 has log => (
     is      => 'rw',
 );
 =head2 parser
+
+The default parser reads content types:
+
+  - text/html with HTML::TreeBuilder::XPath
+
+which is in file: lib/HTML/Robot/Scrapper/Parser/HTML/TreeBuilder/XPath.pm
+
+  - text/xml with XML::XPath  
+
+which is in file: lib/HTML/Robot/Scrapper/Parser/XML/XPath.pm
+
+and the parser is:
+
+  -base: lib/HTML/Robot/Scrapper/Parser/Base.pm
+
+  override with:
+
+  my $robot = HTML::Robot::Scrapper->new (
+    ....
+    log       => {
+        base_class => 'HTML::Robot::Scrapper::Log::Base', #optional, your custom base class
+        class => 'Default' #or HTML::Robot::Scrapper::Log::Default
+    },
+    ...
+  )
+
+  -default: lib/HTML/Robot/Scrapper/Parser/Default.pm
+
 =cut
 has parser => (
     is      => 'rw',
 );
 =head2 queue
+
+base_class: lib/HTML/Robot/Scrapper/Queue/Base.pm
+
+default class: lib/HTML/Robot/Scrapper/Queue/Default.pm (Simple Instance Array)
+
+you can override the whole thing using a custom base_class, or simply use 
+
+a different class
+
+  my $robot = HTML::Robot::Scrapper->new (
+    ....
+    queue     => {
+        base_class => 'HTML::Robot::Scrapper::Queue::Base',
+        class => 'HTML::Robot::Scrapper::Queue::Default'
+    },
+    ...
+  )
+
 =cut
 has queue => (
     is      => 'rw',
@@ -76,21 +138,23 @@ has encoding => (
 =head2 new
 
     HTML::Robot::Scrapper->new({
+        #you must create your own reader/parser
         reader      => {class   => 'HTML::Robot::Scrapper::Reader::TestReader',
                         args    => {},                  },# or [] or any object
+        #you must create your own writer to save your collected data
         writer      => {class   => 'HTML::Robot::Scrapper::Writer::TestWriter',
                         args    => {},                                       },
-        benchmark   => {class   => 'Base',
+        benchmark   => {class   => 'Default',
                         args    => {},                                       },
-        cache       => {class   => 'Base',
+        cache       => {class   => 'Default',
                         args    => {},                                       },
-        log         => {class   => 'Base',
+        log         => {class   => 'Default',
                         args    => {},                                       },
-        parser      => {class   => 'Base',
+        parser      => {class   => 'Default',
                         args    => {},                                       },
-        queue       => {class   => 'Base',
+        queue       => {class   => 'Default',
                         args    => {},                                       },
-        useragent   => {class   => 'Base',
+        useragent   => {class   => 'Default',
                         args    => {},                                       },
     });
 
@@ -101,9 +165,7 @@ sub BUILDARGS {
     my $options = {@args};
 
     foreach my $option ( sort keys %$CUSTOMIZABLES ) {
-        warn "LOADING... $option";
         &_load_custom_class( $options, $option, $CUSTOMIZABLES );
-        warn "LOADED $option";
     }
     &_load_reader( $options );
     &_load_writer( $options );
@@ -112,13 +174,25 @@ sub BUILDARGS {
 };
 
 sub _load_custom_class {
-    my ( $options, $option, $CUSTOMIZABLES ) = @_; 
+    my ( $options, $option, $CUSTOMIZABLES ) = @_;
     my $base_class   = $CUSTOMIZABLES->{$option} .'::Base';
+
+    SET_BASE_CLASS:{
+        if ( exists $options->{ $option } and
+             exists $options->{ $option }->{ base_class } ) {
+            $base_class = $options->{ $option }->{ base_class };
+            #set another base class
+        }
+    }
+
     my $engine_class = $CUSTOMIZABLES->{$option} .'::Default';
-    if ( exists $options->{ $option } and
-         exists $options->{ $option }->{ class } ) {
-        $engine_class = $CUSTOMIZABLES->{$option}
-            . '::' . $options->{ $option }->{ class };
+
+    SET_ENGINE_CLASS:{
+        if ( exists $options->{ $option } and
+             exists $options->{ $option }->{ class } ) {
+            $engine_class = $CUSTOMIZABLES->{$option}
+                . '::' . $options->{ $option }->{ class };
+        }
     }
 
     #load base class interface
