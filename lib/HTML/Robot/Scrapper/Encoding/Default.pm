@@ -22,7 +22,8 @@ if you need something else you can extend it
 =cut
 
 sub safe_encode {
-    my ( $self, $headers, $content ) = @_;
+    my ( $self, $content ) = @_;
+    #my $headers = $self->robot->useragent->headers;
     Encode::Guess->add_suspects(qw/iso-8859-1 utf8/);
     my $decoder = Encode::Guess->guess($content);
     return decode_utf8($content) unless ref($decoder);

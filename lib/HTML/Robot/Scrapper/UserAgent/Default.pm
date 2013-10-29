@@ -188,7 +188,11 @@ sub parse_content {
         foreach my $parser ( @{ $content_types_avail->{$ct} } ) {
             next unless $content_type =~ m/^$ct/ig;
             my $parse_method = $parser->{parse_method};
+use DDP;  warn p $self->robot->parser;
+  warn  $parse_method;
+  warn  $parse_method;
 #           my $content = $res->{content};
+# warn $self->content;
             $self->robot->parser->$parse_method( $self->content );
             $content_type_found = 1;
         }

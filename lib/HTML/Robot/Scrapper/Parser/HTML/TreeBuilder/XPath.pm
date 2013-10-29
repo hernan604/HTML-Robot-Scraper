@@ -21,7 +21,9 @@ sub parse_xpath {
     $self->tree->delete
       if ( defined $self->tree
         and $self->tree->isa('HTML::TreeBuilder::XPath') );
-    $self->tree( $tree_xpath->parse( $content ) );
+    $self->tree( 
+        $tree_xpath->parse( $content ) 
+    );
 }
 
 after 'parse_xpath' => sub {
