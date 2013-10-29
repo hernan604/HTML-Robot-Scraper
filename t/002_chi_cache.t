@@ -10,7 +10,7 @@ BEGIN { use_ok( 'HTML::Robot::Scrapper', 'use is fine' ); }
 
 use HTML::Robot::Scrapper::Reader::TestReader;
 use HTML::Robot::Scrapper::Writer::TestWriter;
-#use CHI;
+use CHI;
 
 #   sub create_cache_dir {
 #     my $dir  = dir(getcwd(), 'cache'); 
@@ -21,10 +21,10 @@ use HTML::Robot::Scrapper::Writer::TestWriter;
 my $robot = HTML::Robot::Scrapper->new (
     reader    => HTML::Robot::Scrapper::Reader::TestReader->new(),
     writer    => HTML::Robot::Scrapper::Writer::TestWriter->new(),
-#   cache     => CHI->new(
-#                   driver => 'BerkeleyDB',
-#                   root_dir => dir( getcwd() , "cache" ),
-#   ),
+    cache     => CHI->new(
+                    driver => 'BerkeleyDB',
+                    root_dir => dir( getcwd() , "cache" ),
+    ),
 #   log       => HTML::Robot::Scrapper::Log::Default->new(),
 #   parser    => HTML::Robot::Scrapper::Parser::Default->new(),
 #   queue     => HTML::Robot::Scrapper::Queue::Default->new(),

@@ -38,7 +38,7 @@ It uses the api from HTML::Robot::Scrapper::Queue::Base
 ### ie: { stuff_on_page1 =>
 ### 'Something from page one that should be used on another page' }
 sub append {
-    my ( $self, $robot, $method, $url, $args ) = @_;
+    my ( $self, $method, $url, $args ) = @_;
     if ( (   !exists $self->url_visited->{$url}
          and !exists $self->url_list_hash->{$url} ) or exists $args->{request} )
     {
@@ -51,7 +51,7 @@ sub append {
         foreach my $k ( keys %$args ) {
             $url_args->{$k} = $args->{$k};
         }
-        $self->insert_on_end( $robot, $url_args );
+        $self->insert_on_end( $url_args );
         $self->url_list_hash->{$url} = 1;
         print "APPENDED '$method' : '$url' \n";
     }
@@ -66,7 +66,7 @@ sub append {
 ### ie: { stuff_on_page1 =>
 ### 'Something from page one that should be used on another page' }
 sub prepend {
-    my ( $self, $robot, $method, $url, $args ) = @_;
+    my ( $self, $method, $url, $args ) = @_;
     if ( ( !exists $self->url_visited->{$url}
        and !exists $self->url_list_hash->{$url} ) or exists $args->{request} )
     {
@@ -79,14 +79,14 @@ sub prepend {
         foreach my $k ( keys %$args ) {
             $url_args->{$k} = $args->{$k};
         }
-        $self->insert_on_begining( $robot, $url_args );
+        $self->insert_on_begining( $url_args );
         $self->url_list_hash->{$url} = 1;
         print "PREPENDED '$method' : '$url' \n";
     }
 }
 
 sub insert_on_end {
-    my ( $self, $robot, $url_args ) = @_;
+    my ( $self, $url_args ) = @_;
     push(
         @{ $self->url_list },
         $url_args
@@ -94,7 +94,7 @@ sub insert_on_end {
 }
 
 sub insert_on_begining {
-    my ( $self, $robot, $url_args ) = @_;
+    my ( $self, $url_args ) = @_;
     unshift(
         @{ $self->url_list },
         $url_args
@@ -102,12 +102,12 @@ sub insert_on_begining {
 }
 
 sub queue_size {
-    my ( $self, $robot ) = @_;
+    my ( $self ) = @_;
     return scalar @{ $self->url_list };
 }
 
 sub queue_get_item {
-    my ( $self, $robot ) = @_;
+    my ( $self ) = @_;
     return shift( @{ $self->url_list } );
 }
 
@@ -117,7 +117,7 @@ sub clean_all {
 }
 
 sub add_visited {
-    my ( $self, $robot, $url ) = @_; 
+    my ( $self, $url ) = @_; 
 }
 
 

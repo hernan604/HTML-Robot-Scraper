@@ -1,7 +1,6 @@
 package HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath;
 use Moose::Role;
 use HTML::TreeBuilder::XPath;
-use Data::Printer;
 
 has tree => (
     is => 'rw',
@@ -16,8 +15,8 @@ see HTML::Robot::Scrapper::Parser::Default
 =cut
 
 sub parse_xpath {
-    my ( $self, $robot, $content ) = @_;
-    $content =  $robot->encoding->safe_encode( $robot->useragent->headers , $content );
+    my ( $self, $content ) = @_;
+    $content =  $self->robot->encoding->safe_encode( $content );
     my $tree_xpath = HTML::TreeBuilder::XPath->new;
     $self->tree->delete
       if ( defined $self->tree
@@ -26,18 +25,18 @@ sub parse_xpath {
 }
 
 after 'parse_xpath' => sub {
-    my ( $self, $robot, $content ) = @_;
-    $self->search_page_urls( $robot );
+    my ( $self, $content ) = @_;
+    $self->search_page_urls( );
 };
 
 sub search_page_urls {
-    my ($self, $robot ) = @_; #search links and pass them to on_link method within the crawlers
+    my ($self ) = @_; #search links and pass them to on_link method within the crawlers
     my $results = $self->tree->findnodes('//a');
     foreach my $item ( $results->get_nodelist ) {
         my $url = $item->attr('href');
         if ( defined $url and $url ne '' ) {
-            my $url = $robot->useragent->normalize_url( $url );
-            $robot->reader->on_link($url)
+            my $url = $self->robot->useragent->normalize_url( $url );
+            $self->robot->reader->on_link($url)
               ;    #calls on_link and lets the user append or not to methods
         }
     }

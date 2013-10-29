@@ -19,6 +19,7 @@ The Benchmark class should provide complete subrouting stats with
 
 =cut
 
+has [ qw/robot engine/ ] => ( is => 'rw', );
 has 'values' => ( is => 'rw' );
 
 sub BUILD {

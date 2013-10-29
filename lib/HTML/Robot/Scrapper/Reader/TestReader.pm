@@ -25,11 +25,11 @@ sub on_start {
 
 sub search {
     my ( $self ) = @_;
-    my $title = $self->robot->parser->engine->tree->findvalue( '//title' );
-    my $h1 = $self->robot->parser->engine->tree->findvalue( '//h1' );
+    my $title = $self->robot->parser->tree->findvalue( '//title' );
+    my $h1 = $self->robot->parser->tree->findvalue( '//h1' );
     warn $title;
     warn p $self->robot->useragent->url ;
-#   warn p $self->robot->parser->engine->tree;
+#   warn p $self->robot->parser->tree;
     warn p $self->robot;
 #   warn $self->url;
 #   $self->robot->writer->url( $self->url );

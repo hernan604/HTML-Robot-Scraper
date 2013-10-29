@@ -4,6 +4,9 @@ use Moose;
 with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath'); #gives parse_xpath
 with('HTML::Robot::Scrapper::Parser::XML::XPath'); #gives parse_xml
 
+has robot => ( is => 'rw', );
+has engine => ( is => 'rw', );
+
 sub content_types {
     my ( $self ) = @_;
     return {

@@ -4,6 +4,10 @@ use Data::Printer;
 use HTTP::Tiny;
 use HTTP::Headers::Util qw(split_header_words);
 use Digest::SHA1  qw(sha1 sha1_hex sha1_base64);
+#use utf8;
+
+has robot => ( is => 'rw', );
+has engine => ( is => 'rw', );
 
 =head1 DESCRIPTION
 
@@ -13,11 +17,15 @@ This is the user agent class. It is responsible to handle the page visit,
 
 =cut
 
-has [ qw/headers request_headers response_headers/ ] => ( is => 'rw' );
-has content => ( is => 'rw' );
-has content_type => ( is => 'rw', );
-has charset => ( is => 'rw', );
-has url => ( is => 'rw', );
+has [ qw/
+             headers
+     request_headers 
+    response_headers
+             content
+             content_type
+             charset
+             url
+/ ] => ( is => 'rw' );
 
 =head2 ua
 
@@ -30,43 +38,43 @@ just like this one and make it work with other user agents.
 has ua => ( is => 'rw', default => sub { HTTP::Tiny->new() } );
 
 sub _headers {
-    my ( $self, $robot, $headers ) = @_;
+    my ( $self, $headers ) = @_;
     $self->headers( $headers ) if defined $headers;
     return $self->headers;
 }
 
 sub _request_headers {
-    my ( $self, $robot, $headers ) = @_;
+    my ( $self, $headers ) = @_;
     $self->request_headers( $headers ) if defined $headers;
     return $self->request_headers;
 }
 
 sub _response_headers {
-    my ( $self, $robot, $headers ) = @_;
+    my ( $self, $headers ) = @_;
     $self->response_headers( $headers ) if defined $headers;
     return $self->response_headers;
 }
 
 sub _content {
-    my ( $self, $robot, $content ) = @_;
+    my ( $self, $content ) = @_;
     $self->content( $content ) if defined $content;
     return $self->content;
 }
 
 sub _content_type {
-    my ( $self, $robot, $content_type ) = @_;
+    my ( $self, $content_type ) = @_;
     $self->content_type( $content_type ) if defined $content_type;
     return $self->content_type;
 }
 
 sub _charset {
-    my ( $self, $robot, $charset ) = @_;
+    my ( $self, $charset ) = @_;
     $self->charset( $charset ) if defined $charset;
     return $self->charset;
 }
 
 sub _url {
-    my ( $self, $robot, $url ) = @_;
+    my ( $self, $url ) = @_;
     $self->url( $url ) if defined $url;
     return $self->url;
 }
@@ -79,7 +87,7 @@ sub _url {
     
     ex.
 
-    $robot->queue->append( search => 'http://www.url.com', {
+    $self->robot->queue->append( search => 'http://www.url.com', {
         passed_key_values => {
             send   => 'var across requests',
             some   => 'vars i collected here...... and ....',
@@ -101,31 +109,33 @@ sub _url {
 =cut
 
 sub visit {
-    my ( $self, $robot, $item ) = @_;
-    if ( $robot->cache->is_active ) {
+    my ( $self, $item ) = @_;
+    if ( defined $self->robot->cache ) {
         my $sha1 = Digest::SHA1->new;
+        $self->url( $item->{ url } );
         $sha1->add( $item->{ url } );
-        $robot->queue->add_visited( $item->{ url } );
-        my $sha1_key = $sha1->hexdigest;
-        my $res = $robot->cache->get( $sha1_key );
+        $self->robot->queue->add_visited( $item->{ url } );
+        my $sha1_key    = $sha1->hexdigest;
+        my $res         = $self->robot->cache->get( $sha1_key );
         if ( ! $res ) {
-            $res = $self->_visit( $robot, $item );
-            $robot->cache->set( $sha1_key, $res );
-            $self->parse_response( $robot, $res ); #todo: passar parametros melhor. ex: 10minutos pro cache..
+            $res = $self->_visit( $item );
+            $self->robot->cache->set( $sha1_key, $res );
+            $self->parse_response( $res ); #todo: passar parametros melhor. ex: 10minutos pro cache..
             return $res;
         } else {
-            $self->parse_response( $robot, $res );
+            $self->parse_response( $res );
             return $res;
         }
     } else {
-        my $res = $self->_visit( $robot, $item );
-        $self->parse_response( $robot, $res );
+        $self->url( $item->{ url } ) if ( exists $item->{ url } );
+        my $res = $self->_visit( $item );
+        $self->parse_response( $res );
         return $res;
     }
 }
 
 sub _visit {
-    my ( $self, $robot, $item ) = @_; 
+    my ( $self, $item ) = @_; 
     my $res = undef;
     if ( exists $item->{ request } and
             ref $item->{ request } eq ref [] )
@@ -138,16 +148,16 @@ sub _visit {
         $res = $self->ua->get( $item->{ url } );
         $self->url( $item->{ url } );
     }
-    $self->parse_response( $robot, $res );
+    $self->parse_response( $res );
     return $res;
 }
 
 
 sub parse_response {
-    my ( $self, $robot, $res ) = @_; 
+    my ( $self, $res ) = @_; 
     my $headers = $res->{ headers };
     $self->content( $res->{ content } );
-    $self->parse_content( $robot, $res );
+    $self->parse_content( $res );
 }
 
 =head2 parse_content
@@ -161,8 +171,8 @@ on content type.
 =cut
 
 sub parse_content {
-    my ( $self, $robot, $res ) = @_;
-    my $content_types_avail = $robot->parser->content_types;
+    my ( $self, $res ) = @_;
+    my $content_types_avail = $self->robot->parser->content_types;
     #set headers
     $self->headers( $res->{ headers } );
     $self->response_headers( $res->{ headers } );
@@ -179,7 +189,7 @@ sub parse_content {
             next unless $content_type =~ m/^$ct/ig;
             my $parse_method = $parser->{parse_method};
 #           my $content = $res->{content};
-            $robot->parser->engine->$parse_method( $robot, $self->content );
+            $self->robot->parser->$parse_method( $self->content );
             $content_type_found = 1;
         }
     }
@@ -205,7 +215,7 @@ sub charset_from_headers {
 }
 
 sub normalize_url {
-    my ( $self, $robot, $url ) = @_;
+    my ( $self, $url ) = @_;
 #   if (       ref $self->before_normalize_url eq ref {}
 #       and exists $self->before_normalize_url->{is_active}
 #              and $self->before_normalize_url->{is_active} == 1
@@ -219,5 +229,15 @@ sub normalize_url {
         return $final_url->as_string();
     }
 }
+
+before 'visit' => sub {
+    my ( $self ) = @_; 
+    $self->robot->benchmark->method_start('visit');
+};
+
+after 'visit' => sub {
+    my ( $self ) = @_; 
+    $self->robot->benchmark->method_finish('visit');
+};
 
 1;

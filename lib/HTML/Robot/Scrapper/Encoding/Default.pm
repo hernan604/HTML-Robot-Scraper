@@ -5,6 +5,8 @@ use Encode;
 use utf8;
 use Data::Printer;
 
+has [qw/robot engine/] => ( is => 'rw' );
+
 =head2 DESCRIPTION
 
 The Encoding class will read $page->content and will try to make sure you receive 
@@ -20,7 +22,7 @@ if you need something else you can extend it
 =cut
 
 sub safe_encode {
-    my ( $self, $robot, $headers, $content ) = @_;
+    my ( $self, $headers, $content ) = @_;
     Encode::Guess->add_suspects(qw/iso-8859-1 utf8/);
     my $decoder = Encode::Guess->guess($content);
     return decode_utf8($content) unless ref($decoder);
