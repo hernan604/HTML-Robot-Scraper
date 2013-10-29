@@ -243,7 +243,7 @@ HTML::Robot::Scrapper - Your robot to parse webpages
 
 =head1 SYNOPSIS
 
-See a working example under the module: WWW::Tabela::Fipe ( search on cpan ). 
+See a working example under the module: WWW::Tabela::Fipe ( search on github ). 
 
 The class
 
@@ -262,16 +262,18 @@ the same method that already parses text/html, here is an example:
 Here i will redefine that class and tell my $robot to favor it
 
     ...
-    parser => {class => 'WWW::Tabela::Fipe::Parser'},
+    parser => WWW::Tabela::Fipe::Parser->new,
     ...
 
 See below:
 
-    package WWW::Tabela::Fipe::Parser;
-    use Moose;
+    package  WWW::Tabela::Fipe::Parser;
+    use Moo;
 
-    with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath');
-    with('HTML::Robot::Scrapper::Parser::XML::XPath');
+    has [qw/engine robot/] => ( is => 'rw' );
+
+    with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath'); 
+    with('HTML::Robot::Scrapper::Parser::XML::XPath'); 
 
     sub content_types {
         my ( $self ) = @_;
@@ -280,13 +282,8 @@ See below:
                 {
                     parse_method => 'parse_xpath',
                     description => q{
-                      The method above 'parse_xpath' is inside class:
-                      HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
-                      
-                      These content type related methods will be called inside:
-                        HTML::Robot::Scrapper::UserAgent::Default around:
-                          $robot->parser->engine->$parse_method( $robot, $self->content )
-
+                        The method above 'parse_xpath' is inside class:
+                        HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath
                     },
                 }
             ],
@@ -294,11 +291,10 @@ See below:
                 {
                     parse_method => 'parse_xpath',
                     description => q{
-                        Here i define which prase_method will treat the page content. 
-                        Based on content type for that page. I tell it to use the 
-                        same method its using to parse html... because i know in this
-                        case text/plain should be text/html instead.
-                      },
+                        esse site da fipe responde em text/plain e eu preciso parsear esse content type.
+                        por isso criei esta classe e passei ela como parametro, sobreescrevendo a classe 
+                        HTML::Robot::Scrapper::Parser::Default
+                    },
                 }
             ],
             'text/xml' => [
@@ -313,39 +309,31 @@ See below:
 
     package FIPE;
 
-
-
     use HTML::Robot::Scrapper;
-    #   use CHI;
+    #use CHI;
     use HTTP::Tiny;
     use HTTP::CookieJar;
+    use WWW::Tabela::Fipe;
+    use WWW::Tabela::FipeWrite;
+    #use WWW::Tabela::Fipe::Parser;
+    use HTML::Robot::Scrapper::UserAgent::Default;
 
-    my $robot = HTML::Robot::Scrapper->new (
-        reader => { # REQ
-            class => 'WWW::Tabela::Fipe',
-        },
-        writer => {class => 'WWW::Tabela::FipeWrite',}, #REQ
-        benchmark => {class => 'Default'},
-    #   cache => {
-    #     class => 'Default',
-    #     args => {
-    #         is_active => 0,
-    #         engine => CHI->new(
-    #             driver => 'BerkeleyDB',
-    #             root_dir => "/home/catalyst/WWW-Tabela-Fipe/cache/",
-    #         ),
-    #     },
-    #   },
-        log => {class => 'Default'},
-        parser => {class => 'WWW::Tabela::Fipe::Parser'}, #custom for tb fipe. because they reply with text/plain content type
-        queue => {class => 'Default'},
-        useragent => {
-            class => 'Default',
-            args => {
-                ua => HTTP::Tiny->new( cookie_jar => HTTP::CookieJar->new),
-            }
-        },
-        encoding => {class => 'Default'},
+    my $robot = HTML::Robot::Scrapper->new(
+        reader    => WWW::Tabela::Fipe->new,
+        writer    => WWW::Tabela::FipeWrite->new,
+    #   cache     => 
+    #           CHI->new(
+    #                   driver => 'BerkeleyDB',
+    #                   root_dir => "/home/catalyst/WWW-Tabela-Fipe/cache/",
+    #           ),
+        parser    => WWW::Tabela::Fipe::Parser->new,  #custom para tb fipe. pois eles respondem com Content type text/plain
+        useragent => HTML::Robot::Scrapper::UserAgent::Default->new(
+                     ua => HTTP::Tiny->new( 
+                        cookie_jar => HTTP::CookieJar->new,
+                        agent      => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0'
+                     ),
+
+        )
     );
 
     $robot->start();
@@ -419,6 +407,8 @@ by default the class that handles that is:
 
     package HTML::Robot::Scrapper::Parser::Default;
     use Moose;
+
+    has [qw/engine robot/] => ( is => 'rw' );
 
     with('HTML::Robot::Scrapper::Parser::HTML::TreeBuilder::XPath'); #gives parse_xpath
     with('HTML::Robot::Scrapper::Parser::XML::XPath'); #gives parse_xml
