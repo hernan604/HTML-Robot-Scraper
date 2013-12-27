@@ -51,6 +51,14 @@ holds the current session headers
 
 has headers           => ( is => 'rw' );
 
+=head2 _ref_reader
+
+holds a reference or key that references a reader class. this is useful if you want multiple readers
+
+=cut 
+
+has _ref_reader        => ( is => 'rw' );
+
 =head1 METHODS
 
 =head2 append
@@ -61,7 +69,10 @@ shortcut for $self->robot->queue->append
 
 sub append {
     my ( $self ) = shift;
-    $self->robot->queue->append( @_ );
+    my ( $method, $url, $args ) = @_;
+    $args = {} if ! $args;
+    $args->{ _ref_reader } = $self->_ref_reader;
+    $self->robot->queue->append( $method, $url, $args );
 }
 
 =head2 prepend
@@ -72,7 +83,10 @@ shortcut for $self->robot->queue->prepend
 
 sub prepend {
     my ( $self ) = shift;
-    $self->robot->queue->prepend( @_ );
+    my ( $method, $url, $args ) = @_;
+    $args = {} if ! $args;
+    $args->{ _ref_reader } = $self->_ref_reader;
+    $self->robot->queue->prepend( $method, $url, $args );
 }
 
 =head2 current_page

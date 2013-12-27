@@ -24,9 +24,21 @@ this attribute access your reader class instance
 =cut
 has reader => (
     is      => 'rw',
-#   default => sub {
-#       
-#   },
+);
+
+=head2 readers
+
+this allows you to have multiple readers
+
+  ->readers( {
+    site_one => Some::BOTs::SiteOne->new
+    site_two => Some::BOTs::SiteTwo->new
+  } );
+
+=cut 
+
+has readers => (
+    is      => 'rw',
 );
 
 =head2 writer
@@ -193,22 +205,53 @@ before 'start' => sub {
     my ( $self ) = @_;
     foreach my $attr ( @{ $self->custom_attrs } ) {
         #give access to this class inside other classes
-        $self->$attr->robot( $self ) if defined $self->$attr and $self->$attr->can( "robot" );
+       $self->$attr->robot( $self ) if defined $self->$attr and $self->$attr->can( "robot" );
     }
-    $self->reader->robot( $self );
+
+    if ( defined $self->readers ) {
+      #for multiple robots
+      foreach my $reader_name ( keys $self->readers ) {
+        my $reader = $self->readers->{ $reader_name };
+        $reader->robot( $self );
+        $reader->_ref_reader( $reader_name );
+      } 
+    } else {
+      # for single robots
+      $self->reader->robot( $self );
+    }
 };
 
 sub start {
     my ( $self ) = @_;
-    $self->reader->on_start( $self );
+    if ( defined $self->readers ) {
+      #for multiple robots
+      foreach my $reader_name ( keys $self->readers ) {
+        my $reader = $self->readers->{ $reader_name };
+        $self->reader( $reader );
+        $self->reader->on_start( $self );
+      }
+    } else {
+      #for single robots
+      $self->reader->on_start( $self );
+    }
     my $counter = 0;
     while ( my $item = $self->queue->queue_get_item ) {
         $self->benchmark->method_start('finish_in');
+    
 
         print '--[ '.$counter++.' ]------------------------------------------------------------------------------'."\n";
         print ' url: '. $item->{ url }."\n" if exists $item->{ url };
         my $method = $item->{ method };
         my $res = $self->useragent->visit($item);
+
+        if ( exists $item->{ _ref_reader } && $self->readers ) {
+          # get _reader_class from $item and set it. this is useful if you add multiple sites to be crawled
+          my $reader = $self->readers->{  $item->{ _ref_reader }  };#its referenced like this so this value can be stored in a redis server or something and the class itself will be loaded accordingly at runtime
+          $self->reader(  $reader  );
+          #sets the proper reader class that will parse this content;
+          $self->reader->on_loop if $self->reader->can('on_loop');#this can add the initial page to be crawled again... will be blocked by default if not enough time has passed on.
+          warn "*** add this to core";
+        }
 
         #clean up&set passed_key_values
         $self->reader->passed_key_values( {} );
@@ -234,7 +277,7 @@ sub start {
 
         $self->benchmark->method_finish('finish_in', 'Total: ' );
     }
-    $self->reader->on_finish( );
+    $self->reader->on_finish( $self ) if ! $self->readers; #if is not multiple readers, because the queue is not supposed to finish
 }
 
 =head1 NAME
