@@ -185,23 +185,14 @@ sub parse_content {
 
     my $content_type_found = 0;
     foreach my $ct (keys %$content_types_avail ) {
+        next unless $content_type =~ m/^$ct/ig;
         foreach my $parser ( @{ $content_types_avail->{$ct} } ) {
-            next unless $content_type =~ m/^$ct/ig;
             my $parse_method = $parser->{parse_method};
-#           my $content = $res->{content};
             $self->robot->parser->$parse_method( $self->content );
             $content_type_found = 1;
         }
     }
     print "**** Content type not set for: " . $content_type . '... please configure it correctly adding a parser for that content type'."\n" if !$content_type_found;
-#   foreach my $ct ( keys $self->parser_content_type ) {
-#       if ( $self->response->{ headers }->{'content-type'} =~ m|^$ct|g ) {
-#           my $parser_method = $self->parser_methods->{ $self->parser_content_type->{ $ct } };
-#           $self->$parser_method();
-#       }
-#   }
-#   my $reader_method = $item->{method};
-#   $self->$reader_method;    #redirects back to method
 }
 
 sub charset_from_headers {
