@@ -11,7 +11,7 @@ use HTML::Robot::Scrapper::Queue::Default;
 use HTML::Robot::Scrapper::UserAgent::Default;
 use HTML::Robot::Scrapper::Encoding::Default;
 
-our $VERSION     = '0.10';
+our $VERSION     = '0.11';
 
 =head1 ATTRIBUTES
 

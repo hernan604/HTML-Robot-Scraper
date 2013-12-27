@@ -43,10 +43,10 @@ my $site_visited = {
 };
 
 foreach my $item ( @{ $robot->writer->data_to_save } ) {
-  $site_visited->{bbc}      = 1 if $item->{ url } =~ m/bbc.+/ig;
-  $site_visited->{zap}      = 1 if $item->{ url } =~ m/zap.+/ig;
-  $site_visited->{google}   = 1 if $item->{ url } =~ m/google.+/ig;
-  $site_visited->{uol}      = 1 if $item->{ url } =~ m/uol.+/ig;
+  $site_visited->{bbc}      = 1 if $item->{ url } =~ m/bbc.+/ig and length ($item->{ title })>0 ;
+  $site_visited->{zap}      = 1 if $item->{ url } =~ m/zap.+/ig and length ($item->{ title })>0;
+  $site_visited->{google}   = 1 if $item->{ url } =~ m/google.+/ig and length ($item->{ title })>0;
+  $site_visited->{uol}      = 1 if $item->{ url } =~ m/uol.+/ig and length ($item->{ title })>0;
 }
 
 ok( $site_visited->{ uol }      == 1, 'visited uol' );
