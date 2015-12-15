@@ -535,6 +535,10 @@ This example also demonstrates how one could easily login into a website and cra
     hernan@cpan.org
     http://github.com/hernan604
 
+=head1 CREDITS
+
+    This module was inspired in the incredible WUB crawler architecture by L<Stanislaw Pusep|https://github.com/creaktive/>
+
 =head1 COPYRIGHT
 
 This program is free software; you can redistribute
